@@ -58,6 +58,6 @@ public class ArrayStorage {
             if (storage[i] == null)
                 return i;
         }
-        return 0;
+        return storage.length;
     }
 }
