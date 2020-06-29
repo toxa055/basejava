@@ -8,7 +8,7 @@ import java.util.Arrays;
  * Array based storage for Resumes
  */
 public class ArrayStorage {
-    private Resume[] storage = new Resume[10000];
+    private Resume[] storage = new Resume[10_000];
     private int size = 0;
 
     public void clear() {
@@ -16,69 +16,59 @@ public class ArrayStorage {
         size = 0;
     }
 
-    public void save(Resume r) {
-        if (!isResumeExist(r.getUuid())) {
-            if (size == 10000) {
-                System.out.println("Storage is overfilled. Resume will not be saved.");
+    public void save(Resume resume) {
+        int index = indexOfFoundElement(resume.getUuid());
+        if (index == -1) {
+            if (size == storage.length) {
+                System.out.println("Storage is overfilled. Resume with " + resume.getUuid() + " uuid will not be saved.");
             } else {
-                storage[size] = r;
+                storage[size] = resume;
                 size++;
             }
         } else {
-            System.out.println("Resume already exists.");
+            System.out.println("Resume with " + resume.getUuid() + " uuid already exists.");
         }
     }
 
-    public boolean isResumeExist(String uuid) {
+    public int indexOfFoundElement(String uuid) {
         if (uuid != null) {
-            for (Resume resume : getAll()) {
-                if (resume.getUuid().equals(uuid)) {
-                    return true;
+            for (int i = 0; i < size; i++) {
+                if (storage[i].getUuid().equals(uuid)) {
+                    return i;
                 }
             }
         }
-        return false;
+        return -1;
     }
 
-    public void update(Resume r) {
-        if (isResumeExist(r.getUuid())) {
-            System.out.println("Resume will be updated.");
+    public void update(Resume resume) {
+        int index = indexOfFoundElement(resume.getUuid());
+        if (index != -1) {
+            storage[index] = resume;
+            System.out.println("Resume with " + resume.getUuid() + " uuid has been updated.");
         } else {
-            System.out.println("Resume does not exist.");
+            System.out.println("Resume with " + resume.getUuid() + " uuid does not exist.");
         }
     }
 
     public Resume get(String uuid) {
-        if (isResumeExist(uuid)) {
-            for (Resume resume : getAll()) {
-                if (resume.getUuid().equals(uuid)) {
-                    return resume;
-                }
-            }
+        int index = indexOfFoundElement(uuid);
+        if (index != -1) {
+            return storage[index];
         } else {
-            System.out.println("Resume does not exist.");
+            System.out.println("Resume with " + uuid + " uuid does not exist.");
         }
         return null;
     }
 
     public void delete(String uuid) {
-        if (isResumeExist(uuid)) {
-            int indexOfDeletedElement = -1;
-            for (int i = 0; i < size; i++) {
-                if (storage[i].getUuid().equals(uuid)) {
-                    indexOfDeletedElement = i;
-                    break;
-                }
-            }
-            if (indexOfDeletedElement != -1) {
-                for (int i = indexOfDeletedElement; i < size - 1; i++) {
-                    storage[i] = storage[i + 1];
-                }
-                storage[size - 1] = null;
-                size--;
-            }
+        int index = indexOfFoundElement(uuid);
+        if (index != -1) {
+            System.arraycopy(storage, index + 1, storage, index, size - 1 - index);
+            storage[size - 1] = null;
+            size--;
         } else {
-            System.out.println("Resume does not exist.");
+            System.out.println("Resume with " + uuid + " uuid does not exist.");
         }
     }
 
