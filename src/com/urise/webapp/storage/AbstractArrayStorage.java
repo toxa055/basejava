@@ -1,5 +1,8 @@
 package com.urise.webapp.storage;
 
+import com.urise.webapp.exception.ExistStorageException;
+import com.urise.webapp.exception.NotExistStorageException;
+import com.urise.webapp.exception.StorageException;
 import com.urise.webapp.model.Resume;
 
 import java.util.Arrays;
@@ -18,13 +21,13 @@ public abstract class AbstractArrayStorage implements Storage {
         int index = getIndex(resume.getUuid());
         if (index < 0) {
             if (size >= STORAGE_LIMIT) {
-                System.out.println("Storage is overfilled. Resume with " + resume.getUuid() + " uuid will not be saved.");
+                throw new StorageException("Storage is overfilled. Resume will not be saved.", resume.getUuid());
             } else {
-                saveResume(resume, index);
+                insertResume(resume, index);
                 size++;
             }
         } else {
-            System.out.println("Resume with " + resume.getUuid() + " uuid already exists.");
+            throw new ExistStorageException(resume.getUuid());
         }
     }
 
@@ -34,7 +37,7 @@ public abstract class AbstractArrayStorage implements Storage {
             storage[index] = resume;
             System.out.println("Resume with " + resume.getUuid() + " uuid has been updated.");
         } else {
-            System.out.println("Resume with " + resume.getUuid() + " uuid does not exist.");
+            throw new NotExistStorageException(resume.getUuid());
         }
     }
 
@@ -43,18 +46,17 @@ public abstract class AbstractArrayStorage implements Storage {
         if (index > -1) {
             return storage[index];
         }
-        System.out.println("Resume with " + uuid + " uuid does not exist.");
-        return null;
+        throw new NotExistStorageException(uuid);
     }
 
     public void delete(String uuid) {
         int index = getIndex(uuid);
         if (index > -1) {
-            deleteResume(index);
+            removeResume(index);
             storage[size - 1] = null;
             size--;
         } else {
-            System.out.println("Resume with " + uuid + " uuid does not exist.");
+            throw new NotExistStorageException(uuid);
         }
     }
 
@@ -68,7 +70,7 @@ public abstract class AbstractArrayStorage implements Storage {
 
     protected abstract int getIndex(String uuid);
 
-    protected abstract void saveResume(Resume resume, int index);
+    protected abstract void insertResume(Resume resume, int index);
 
-    protected abstract void deleteResume(int index);
+    protected abstract void removeResume(int index);
 }
