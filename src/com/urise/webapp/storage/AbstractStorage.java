@@ -20,7 +20,6 @@ public abstract class AbstractStorage implements Storage {
         int index = getIndex(resume.getUuid());
         if (index > -1) {
             updateResume(resume, index);
-            System.out.println("Resume with " + resume.getUuid() + " uuid has been updated.");
         } else {
             throw new NotExistStorageException(resume.getUuid());
         }

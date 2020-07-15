@@ -6,11 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ListStorage extends AbstractStorage {
-    protected ArrayList<Resume> storage = new ArrayList<Resume>();
+    protected List<Resume> storage = new ArrayList<>();
 
     public void clear() {
         storage.clear();
-        storage.trimToSize();
     }
 
     public Resume[] getAll() {

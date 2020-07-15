@@ -26,7 +26,7 @@ public abstract class AbstractArrayStorage extends AbstractStorage {
     @Override
     protected void pasteResume(Resume resume, int index) {
         if (size >= STORAGE_LIMIT) {
-            throw new StorageException("Storage is overfilled. Resume will not be saved.", resume.getUuid());
+            throw new StorageException("Storage overflow. Resume will not be saved.", resume.getUuid());
         } else {
             insertResume(resume, index);
             size++;
