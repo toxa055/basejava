@@ -12,13 +12,13 @@ public class ListStorage extends AbstractStorage {
         storage.clear();
     }
 
-    public List<Resume> getAllSorted() {
-        storage.sort(RESUME_COMPARATOR);
-        return storage;
-    }
-
     public int size() {
         return storage.size();
+    }
+
+    @Override
+    protected List<Resume> getAllAsList() {
+        return storage;
     }
 
     @Override
