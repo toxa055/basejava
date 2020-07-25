@@ -3,11 +3,9 @@ package com.urise.webapp.storage;
 import com.urise.webapp.exception.ExistStorageException;
 import com.urise.webapp.exception.NotExistStorageException;
 import com.urise.webapp.model.Resume;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -63,14 +61,14 @@ public abstract class AbstractStorageTest {
 
     @Test
     public void update() {
-        storage.update(new Resume(UUID_4));
-        Resume resume = storage.get(UUID_4);
-        assertEquals(RESUME_4, resume);
+        Resume resume = new Resume(UUID_4, "dummy");
+        storage.update(resume);
+        assertGet(resume);
     }
 
     @Test(expected = NotExistStorageException.class)
     public void updateNotExist() {
-        storage.update(new Resume(UUID_5));
+        storage.update(new Resume("dummy"));
     }
 
     @Test
@@ -95,16 +93,15 @@ public abstract class AbstractStorageTest {
 
     @Test(expected = NotExistStorageException.class)
     public void deleteNotExist() {
-        storage.get(UUID_5);
+        storage.delete(UUID_5);
     }
 
     @Test
     public void getAllSorted() {
         storage.save(RESUME_6);
-        List<Resume> expectedList = new ArrayList<>(Arrays.asList(RESUME_3, RESUME_2, RESUME_1, RESUME_6, RESUME_4));
+        List<Resume> expectedList = Arrays.asList(RESUME_3, RESUME_2, RESUME_1, RESUME_6, RESUME_4);
         List<Resume> actualList = storage.getAllSorted();
-        actualList.forEach(System.out::println);
-        System.out.println("======");
+        assertSize(5);
         assertEquals(expectedList, actualList);
     }
 

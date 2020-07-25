@@ -5,26 +5,26 @@ import com.urise.webapp.model.Resume;
 import java.util.*;
 
 public class MapUuidStorage extends AbstractStorage {
-    protected Map<String, Resume> storage = new HashMap<>();
+    private Map<String, Resume> map = new HashMap<>();
 
     @Override
-    protected void pasteResume(Resume resume, Object searchKey) {
-        storage.put((String) searchKey, resume);
+    protected void doSave(Resume resume, Object uuid) {
+        map.put((String) uuid, resume);
     }
 
     @Override
-    protected void updateResume(Resume resume, Object searchKey) {
-        storage.put((String) searchKey, resume);
+    protected void doUpdate(Resume resume, Object uuid) {
+        map.put((String) uuid, resume);
     }
 
     @Override
-    protected void deleteResume(Object searchKey) {
-        storage.remove(searchKey);
+    protected void doDelete(Object uuid) {
+        map.remove(uuid);
     }
 
     @Override
-    protected Resume getResume(Object searchKey) {
-        return storage.get(searchKey);
+    protected Resume doGet(Object uuid) {
+        return map.get(uuid);
     }
 
     @Override
@@ -33,22 +33,22 @@ public class MapUuidStorage extends AbstractStorage {
     }
 
     @Override
-    protected boolean isContainsResume(Object searchKey) {
-        return storage.containsKey(searchKey);
+    protected boolean isExist(Object uuid) {
+        return map.containsKey(uuid);
     }
 
     @Override
     public void clear() {
-        storage.clear();
+        map.clear();
     }
 
     @Override
-    protected List<Resume> getAllAsList() {
-        return new ArrayList(storage.values());
+    protected List<Resume> doCopyAll() {
+        return new ArrayList(map.values());
     }
 
     @Override
     public int size() {
-        return storage.size();
+        return map.size();
     }
 }

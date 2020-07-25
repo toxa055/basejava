@@ -3,7 +3,6 @@ package com.urise.webapp.storage;
 import com.urise.webapp.exception.StorageException;
 import com.urise.webapp.model.Resume;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -22,12 +21,12 @@ public abstract class AbstractArrayStorage extends AbstractStorage {
     }
 
     @Override
-    protected List<Resume> getAllAsList() {
-        return new ArrayList(Arrays.asList((Arrays.copyOf(storage, size))));
+    protected List<Resume> doCopyAll() {
+        return Arrays.asList((Arrays.copyOf(storage, size)));
     }
 
     @Override
-    protected void pasteResume(Resume resume, Object searchKey) {
+    protected void doSave(Resume resume, Object searchKey) {
         if (size >= STORAGE_LIMIT) {
             throw new StorageException("Storage overflow. Resume will not be saved.", resume.getUuid());
         } else {
@@ -37,24 +36,24 @@ public abstract class AbstractArrayStorage extends AbstractStorage {
     }
 
     @Override
-    protected void updateResume(Resume resume, Object searchKey) {
+    protected void doUpdate(Resume resume, Object searchKey) {
         storage[(int) searchKey] = resume;
     }
 
     @Override
-    protected void deleteResume(Object searchKey) {
+    protected void doDelete(Object searchKey) {
         removeResume((int) searchKey);
         storage[size - 1] = null;
         size--;
     }
 
     @Override
-    protected Resume getResume(Object searchKey) {
+    protected Resume doGet(Object searchKey) {
         return storage[(int) searchKey];
     }
 
     @Override
-    protected boolean isContainsResume(Object searchKey) {
+    protected boolean isExist(Object searchKey) {
         return ((int) searchKey) > -1;
     }
 
