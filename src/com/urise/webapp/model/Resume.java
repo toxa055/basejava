@@ -33,54 +33,16 @@ public class Resume implements Comparable<Resume> {
         return contactsMap;
     }
 
+    public void setContactsMap(Map<ContactType, String> contactsMap) {
+        this.contactsMap = contactsMap;
+    }
+
     public Map<SectionType, AbstractSection> getSectionMap() {
         return sectionMap;
     }
 
-    public void addContact(ContactType contactType, String contact) {
-        contactsMap.put(contactType, contact);
-    }
-
-    public void addTextSection(SectionType sectionType, String text) {
-        if ((sectionType == SectionType.OBJECTIVE) || (sectionType == SectionType.PERSONAL)) {
-            sectionMap.put(sectionType, new TextSection(text));
-        } else {
-            System.out.println("Cannot create TextSection for " + sectionType);
-        }
-    }
-
-    public void createTextListSection(SectionType sectionType) {
-        if ((sectionType == SectionType.ACHIEVEMENT) || (sectionType == SectionType.QUALIFICATIONS)) {
-            sectionMap.put(sectionType, new TextListSection());
-        } else {
-            System.out.println("Cannot create TextListSection for " + sectionType);
-        }
-    }
-
-    public void addTextListSection(SectionType sectionType, String line) {
-        if ((sectionType == SectionType.ACHIEVEMENT) || (sectionType == SectionType.QUALIFICATIONS)) {
-            ((TextListSection) sectionMap.get(sectionType)).getList().add(line);
-        } else {
-            System.out.println("Cannot add TextListSection for " + sectionType);
-        }
-    }
-
-    public void createTextBlockSection(SectionType sectionType) {
-        if ((sectionType == SectionType.EDUCATION) || (sectionType == SectionType.EXPERIENCE)) {
-            sectionMap.put(sectionType, new TextBlockSection());
-        } else {
-            System.out.println("Cannot create TextBlockSection for " + sectionType);
-        }
-    }
-
-    public void addTextBlockSection(SectionType sectionType, int yearSince, int monthSince, int yearTo, int monthTo,
-                                    String place, String position, String description) {
-        if ((sectionType == SectionType.EDUCATION) || (sectionType == SectionType.EXPERIENCE)) {
-            ((TextBlockSection) sectionMap.get(sectionType)).getList().add(new TextBlock(yearSince, monthSince,
-                    yearTo, monthTo, place, position, description));
-        } else {
-            System.out.println("Cannot add TextBlockSection for " + sectionType);
-        }
+    public void setSectionMap(Map<SectionType, AbstractSection> sectionMap) {
+        this.sectionMap = sectionMap;
     }
 
     @Override

@@ -17,6 +17,13 @@ public class TextBlock {
         this.description = description;
     }
 
+    public TextBlock(int yearSince, int monthSince, int yearTo, int monthTo, String place, String description) {
+        yearMonthSince = YearMonth.of(yearSince, monthSince);
+        yearMonthTo = YearMonth.of(yearTo, monthTo);
+        this.place = place;
+        this.description = description;
+    }
+
     @Override
     public String toString() {
         return yearMonthSince + " / "

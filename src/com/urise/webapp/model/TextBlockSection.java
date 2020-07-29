@@ -1,16 +1,19 @@
 package com.urise.webapp.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class TextBlockSection extends AbstractSection {
-    private final List<TextBlock> list;
+    private List<TextBlock> list;
 
-    public TextBlockSection() {
-        list = new ArrayList<>();
+    public TextBlockSection(List<TextBlock> list) {
+        this.list = list;
     }
 
     public List<TextBlock> getList() {
         return list;
+    }
+
+    public void setList(List<TextBlock> list) {
+        this.list = list;
     }
 }
