@@ -10,7 +10,41 @@ import java.util.Map;
 public class ResumeTestData {
 
     public static void main(String[] args) {
-        Resume resume = new Resume("Grigory Kislin");
+        Resume resume = fillResume("uuid1", "Grigory Kislin");
+
+        for (Map.Entry<ContactType, String> contact : resume.getContacts().entrySet()) {
+            System.out.println(contact.getKey().getTitle() + ": " + contact.getValue());
+        }
+
+        System.out.println("\n===========");
+
+        for (Map.Entry<SectionType, AbstractSection> section : resume.getSections().entrySet()) {
+            SectionType sectionType = section.getKey();
+            AbstractSection sectionValue = section.getValue();
+            System.out.println(sectionType + " / " + sectionType.getTitle());
+            switch (sectionType) {
+                case PERSONAL:
+                case OBJECTIVE:
+                    System.out.println(((SimpleTextSection) sectionValue).getDescription());
+                    break;
+                case ACHIEVEMENT:
+                case QUALIFICATIONS:
+                    ((ListSection) sectionValue).getItems().forEach(System.out::println);
+                    break;
+                case EXPERIENCE:
+                case EDUCATION:
+                    ((OrganizationSection) sectionValue).getOrganizations().forEach(System.out::println);
+                    break;
+                default:
+                    System.out.println("No data in resume");
+                    break;
+            }
+            System.out.println("===========");
+        }
+    }
+
+    public static Resume fillResume(String uuid, String fullName) {
+        Resume resume = new Resume(uuid, fullName);
 
         List<String> qualificationsList = new ArrayList<>();
         List<String> achievementList = new ArrayList<>();
@@ -23,8 +57,14 @@ public class ResumeTestData {
         OrganizationSection experienceSection = new OrganizationSection(experienceList);
 
         resume.getContacts().put(ContactType.PHONE, "+7(921) 855-0482");
+        resume.getContacts().put(ContactType.MOBILE, "+7(921) 855-0482");
+        resume.getContacts().put(ContactType.HOME_PHONE, "+7(921) 855-0482");
         resume.getContacts().put(ContactType.SKYPE, "grigory.kislin");
-        resume.getContacts().put(ContactType.EMAIL, "gkislin@yandex.ru");
+        resume.getContacts().put(ContactType.EMAIL, "linkedin.com/in/gkislin");
+        resume.getContacts().put(ContactType.LINKEDIN, "gkislin@yandex.ru");
+        resume.getContacts().put(ContactType.GITHUB, "github.com/gkislin");
+        resume.getContacts().put(ContactType.STACKOVERFLOW, "stackoverflow.com/users/548473");
+        resume.getContacts().put(ContactType.HOME_PAGE, "gkislin.ru");
 
         resume.getSections().put(SectionType.PERSONAL, new SimpleTextSection("Аналитический склад ума," +
                 "сильная логика, креативность,инициативность. Пурист кода и архитектуры."));
@@ -75,104 +115,76 @@ public class ResumeTestData {
         achievementList.add("Реализация протоколов по приему платежей всех основных " +
                 "платежных системы России (Cyberplat, Eport, Chronopay, Сбербанк), Белоруcсии(Erip, Osmp) и Никарагуа.");
 
-        educationList.add(new Organization("Coursera", null, DateUtil.of(2013, Month.MARCH),
-                DateUtil.of(2013, Month.MAY),
-                "\"Functional Programming Principles in Scala\" by Martin Odersky", null));
-        educationList.add(new Organization("Luxoft", null, DateUtil.of(2011, Month.MARCH),
-                DateUtil.of(2011, Month.APRIL),
-                "Объектно-ориентированный анализ ИС. Концептуальное моделирование на UML.", null));
-        educationList.add(new Organization("Siemens AG", null, DateUtil.of(2005, Month.JANUARY),
-                DateUtil.of(2004, Month.APRIL),
-                "3 месяца обучения мобильным IN сетям (Берлин)", null));
-        educationList.add(new Organization("Alcatel", null, DateUtil.of(1997, Month.SEPTEMBER),
-                DateUtil.of(1998, Month.MARCH),
-                "6 месяцев обучения цифровым телефонным сетям (Москва)", null));
+        educationList.add(new Organization("Coursera", null,
+                new Position(DateUtil.of(2013, Month.MARCH), DateUtil.of(2013, Month.MAY),
+                        "\"Functional Programming Principles in Scala\" by Martin Odersky", null)));
+        educationList.add(new Organization("Luxoft", null,
+                new Position(DateUtil.of(2011, Month.MARCH), DateUtil.of(2011, Month.APRIL),
+                        "Объектно-ориентированный анализ ИС. Концептуальное моделирование на UML.", null)));
+        educationList.add(new Organization("Siemens AG", null,
+                new Position(DateUtil.of(2005, Month.JANUARY), DateUtil.of(2004, Month.APRIL),
+                        "3 месяца обучения мобильным IN сетям (Берлин)", null)));
+        educationList.add(new Organization("Alcatel", null,
+                new Position(DateUtil.of(1997, Month.SEPTEMBER), DateUtil.of(1998, Month.MARCH),
+                        "6 месяцев обучения цифровым телефонным сетям (Москва)", null)));
         educationList.add(new Organization("Санкт-Петербургский национальный исследовательский университет " +
-                "информационных технологий, механики и оптики", null, DateUtil.of(1993, Month.SEPTEMBER),
-                DateUtil.of(1996, Month.JULY), "Аспирантура (программист С, С++)", null));
-        educationList.add(new Organization("Санкт-Петербургский национальный исследовательский университет " +
-                "информационных технологий, механики и оптики", null, DateUtil.of(1987, Month.SEPTEMBER),
-                DateUtil.of(1993, Month.JULY), "Инженер (программист Fortran, C)", null));
+                "информационных технологий, механики и оптики", null,
+                new Position(DateUtil.of(1993, Month.SEPTEMBER), DateUtil.of(1996, Month.JULY),
+                        "Аспирантура (программист С, С++)", null),
+                new Position(DateUtil.of(1987, Month.SEPTEMBER), DateUtil.of(1993, Month.JULY),
+                        "Инженер (программист Fortran, C)", null)));
         educationList.add(new Organization("Заочная физико-техническая школа при МФТИ", null,
-                DateUtil.of(1984, Month.SEPTEMBER), DateUtil.of(1987, Month.JUNE),
-                "Закончил с отличием", null));
+                new Position(DateUtil.of(1984, Month.SEPTEMBER), DateUtil.of(1987, Month.JUNE),
+                        "Закончил с отличием", null)));
 
         experienceList.add(new Organization("Java Online Projects", "javaops.ru",
-                DateUtil.of(2013, Month.OCTOBER), DateUtil.of(2020, Month.AUGUST),
-                "Автор проекта", "Создание, организация и проведение Java онлайн проектов и стажировок."));
+                new Position(DateUtil.of(2013, Month.OCTOBER), DateUtil.of(2020, Month.AUGUST),
+                        "Автор проекта", "Создание, организация и проведение Java онлайн проектов и стажировок.")));
         experienceList.add(new Organization("Wrike", "wrike.com",
-                DateUtil.of(2014, Month.OCTOBER), DateUtil.of(2016, Month.JANUARY),
-                "Старший разработчик (backend)", "Проектирование и разработка " +
-                "онлайн платформы управления проектами Wrike (Java 8 API, Maven, Spring, MyBatis, Guava, Vaadin, " +
-                "PostgreSQL, Redis). Двухфакторная аутентификация, авторизация по OAuth1, OAuth2, JWT SSO."));
-        experienceList.add(new Organization("RIT Center", null, DateUtil.of(2012, Month.APRIL),
-                DateUtil.of(2014, Month.OCTOBER),
-                "Java архитектор", "Организация процесса разработки системы ERP для разных окружений: " +
-                "релизная политика, версионирование, ведение CI (Jenkins), миграция базы (кастомизация Flyway), " +
-                "конфигурирование системы (pgBoucer, Nginx), AAA via SSO. Архитектура БД и серверной части системы. " +
-                "Разработка интергационных сервисов: CMIS, BPMN2, 1C (WebServices), " +
-                "сервисов общего назначения (почта, экспорт в pdf, doc, html). " +
-                "Интеграция Alfresco JLAN для online редактирование из браузера документов MS Office. " +
-                "Maven + plugin development, Ant, Apache Commons, Spring security, Spring MVC, Tomcat,WSO2, xcmis, " +
-                "OpenCmis, Bonita, Python scripting, Unix shell remote scripting via ssh tunnels, PL/Python."));
+                new Position(DateUtil.of(2014, Month.OCTOBER), DateUtil.of(2016, Month.JANUARY),
+                        "Старший разработчик (backend)", "Проектирование и разработка " +
+                        "онлайн платформы управления проектами Wrike (Java 8 API, Maven, Spring, MyBatis, Guava, Vaadin, " +
+                        "PostgreSQL, Redis). Двухфакторная аутентификация, авторизация по OAuth1, OAuth2, JWT SSO.")));
+        experienceList.add(new Organization("RIT Center", null,
+                new Position(DateUtil.of(2012, Month.APRIL), DateUtil.of(2014, Month.OCTOBER),
+                        "Java архитектор", "Организация процесса разработки системы ERP для разных окружений: " +
+                        "релизная политика, версионирование, ведение CI (Jenkins), миграция базы (кастомизация Flyway), " +
+                        "конфигурирование системы (pgBoucer, Nginx), AAA via SSO. Архитектура БД и серверной части системы. " +
+                        "Разработка интергационных сервисов: CMIS, BPMN2, 1C (WebServices), сервисов общего " +
+                        "назначения (почта, экспорт в pdf, doc, html). Интеграция Alfresco JLAN для online редактирование " +
+                        "из браузера документов MS Office. Maven + plugin development, Ant, Apache Commons, Spring security, " +
+                        "Spring MVC, Tomcat,WSO2, xcmis, OpenCmis, Bonita, Python scripting, " +
+                        "Unix shell remote scripting via ssh tunnels, PL/Python.")));
         experienceList.add(new Organization("Luxoft (Deutsche Bank)", "luxoft.ru",
-                DateUtil.of(2010, Month.DECEMBER), DateUtil.of(2012, Month.APRIL),
-                "Ведущий программист", "Участие в проекте Deutsche Bank CRM (WebLogic, Hibernate," +
-                "Spring, Spring MVC, SmartGWT, GWT, Jasper, Oracle). Реализация клиентской и серверной части CRM. " +
-                "Реализация RIA-приложения для администрирования, мониторинга и анализа результатов " +
-                "в области алгоритмического трейдинга. JPA, Spring, Spring-MVC, GWT, ExtGWT (GXT), Highstock, Commet, HTML5."));
+                new Position(DateUtil.of(2010, Month.DECEMBER), DateUtil.of(2012, Month.APRIL),
+                        "Ведущий программист", "Участие в проекте Deutsche Bank CRM (WebLogic, Hibernate," +
+                        "Spring, Spring MVC, SmartGWT, GWT, Jasper, Oracle). Реализация клиентской и серверной части CRM. " +
+                        "Реализация RIA-приложения для администрирования, мониторинга и анализа результатов " +
+                        "в области алгоритмического трейдинга. JPA, Spring, Spring-MVC, GWT, ExtGWT (GXT), Highstock, Commet, HTML5.")));
         experienceList.add(new Organization("Yota", "yota.ru",
-                DateUtil.of(2008, Month.JUNE), DateUtil.of(2010, Month.DECEMBER),
-                "Ведущий специалист", "Дизайн и имплементация Java EE фреймворка для отдела " +
-                "\"Платежные Системы\" (GlassFish v2 .1, v3, OC4J, EJB3, JAX - WS RI 2.1, Servlet 2.4, JSP, JMX, JMS, Maven2). " +
-                "Реализация администрирования, статистики и мониторинга фреймворка. " +
-                "Разработка online JMX клиента (Python / Jython, Django, ExtJS)"));
+                new Position(DateUtil.of(2008, Month.JUNE), DateUtil.of(2010, Month.DECEMBER),
+                        "Ведущий специалист", "Дизайн и имплементация Java EE фреймворка для отдела " +
+                        "\"Платежные Системы\" (GlassFish v2 .1, v3, OC4J, EJB3, JAX - WS RI 2.1, Servlet 2.4, JSP, JMX, JMS, Maven2). " +
+                        "Реализация администрирования, статистики и мониторинга фреймворка. " +
+                        "Разработка online JMX клиента (Python / Jython, Django, ExtJS)")));
         experienceList.add(new Organization("Enkata", "enkata.com",
-                DateUtil.of(2007, Month.MARCH), DateUtil.of(2008, Month.JUNE),
-                "Разработчик ПО", "Реализация клиентской (Eclipse RCP) и серверной (JBoss 4.2, " +
-                "Hibernate 3.0, Tomcat, JMS)частей кластерного J2EE приложения (OLAP, Data mining)"));
+                new Position(DateUtil.of(2007, Month.MARCH), DateUtil.of(2008, Month.JUNE),
+                        "Разработчик ПО", "Реализация клиентской (Eclipse RCP) и серверной (JBoss 4.2, " +
+                        "Hibernate 3.0, Tomcat, JMS)частей кластерного J2EE приложения (OLAP, Data mining)")));
         experienceList.add(new Organization("Siemens AG", "siemens.com",
-                DateUtil.of(2005, Month.JANUARY), DateUtil.of(2007, Month.FEBRUARY),
-                "Разработчик ПО", "Разработка информационной модели, проектирование интерфейсов," +
-                "реализация и отладка ПО на мобильной IN платформе Siemens @vantage(Java, Unix)."));
+                new Position(DateUtil.of(2005, Month.JANUARY), DateUtil.of(2007, Month.FEBRUARY),
+                        "Разработчик ПО", "Разработка информационной модели, проектирование интерфейсов," +
+                        "реализация и отладка ПО на мобильной IN платформе Siemens @vantage(Java, Unix).")));
         experienceList.add(new Organization("Alcatel", "alcatel.ru",
-                DateUtil.of(1997, Month.SEPTEMBER), DateUtil.of(2005, Month.JANUARY),
-                "Инженер по аппаратному и программному тестированию", "Тестирование, отладка, " +
-                "внедрение ПО цифровой телефонной станции Alcatel 1000 S12(CHILL, ASM)."));
+                new Position(DateUtil.of(1997, Month.SEPTEMBER), DateUtil.of(2005, Month.JANUARY),
+                        "Инженер по аппаратному и программному тестированию", "Тестирование, отладка, " +
+                        "внедрение ПО цифровой телефонной станции Alcatel 1000 S12(CHILL, ASM).")));
 
         resume.getSections().put(SectionType.QUALIFICATIONS, qualificationsSection);
         resume.getSections().put(SectionType.ACHIEVEMENT, achievementSection);
         resume.getSections().put(SectionType.EDUCATION, educationSection);
         resume.getSections().put(SectionType.EXPERIENCE, experienceSection);
 
-        for (Map.Entry<ContactType, String> contact : resume.getContacts().entrySet()) {
-            System.out.println(contact.getKey().getTitle() + ": " + contact.getValue());
-        }
-
-        System.out.println("\n===========");
-
-        for (Map.Entry<SectionType, AbstractSection> section : resume.getSections().entrySet()) {
-            SectionType sectionType = section.getKey();
-            AbstractSection sectionValue = section.getValue();
-            System.out.println(sectionType + " / " + sectionType.getTitle());
-            switch (sectionType) {
-                case PERSONAL:
-                case OBJECTIVE:
-                    System.out.println(((SimpleTextSection) sectionValue).getDescription());
-                    break;
-                case ACHIEVEMENT:
-                case QUALIFICATIONS:
-                    ((ListSection) sectionValue).getItems().forEach(System.out::println);
-                    break;
-                case EXPERIENCE:
-                case EDUCATION:
-                    ((OrganizationSection) sectionValue).getOrganizations().forEach(System.out::println);
-                    break;
-                default:
-                    System.out.println("No data in resume");
-                    break;
-            }
-            System.out.println("===========");
-        }
+        return resume;
     }
 }

@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.*;
+import static com.urise.webapp.model.ResumeTestData.fillResume;
 
 public abstract class AbstractStorageTest {
     protected Storage storage;
@@ -21,12 +22,12 @@ public abstract class AbstractStorageTest {
     private final static String UUID_4 = "uuid4";
     private final static String UUID_5 = "uuid5";
 
-    private final static Resume RESUME_1 = new Resume(UUID_1, "Petrov Ivan");
-    private final static Resume RESUME_2 = new Resume(UUID_2, "Petrov Aleksey");
-    private final static Resume RESUME_3 = new Resume(UUID_3, "Ivanov Andrey");
-    private final static Resume RESUME_4 = new Resume(UUID_4, "Sidorov Pavel");
-    private final static Resume RESUME_5 = new Resume(UUID_5, "Sidorov Pavel");
-    private final static Resume RESUME_6 = new Resume(UUID_0, "Sidorov Pavel");
+    private final static Resume RESUME_1 = fillResume(UUID_1, "Petrov Ivan");
+    private final static Resume RESUME_2 = fillResume(UUID_2, "Petrov Aleksey");
+    private final static Resume RESUME_3 = fillResume(UUID_3, "Ivanov Andrey");
+    private final static Resume RESUME_4 = fillResume(UUID_4, "Sidorov Pavel");
+    private final static Resume RESUME_5 = fillResume(UUID_5, "Sidorov Pavel");
+    private final static Resume RESUME_6 = fillResume(UUID_0, "Sidorov Pavel");
 
     protected AbstractStorageTest(Storage storage) {
         this.storage = storage;
@@ -61,14 +62,14 @@ public abstract class AbstractStorageTest {
 
     @Test
     public void update() {
-        Resume resume = new Resume(UUID_4, "dummy");
+        Resume resume = fillResume(UUID_4, "dummy");
         storage.update(resume);
         assertGet(resume);
     }
 
     @Test(expected = NotExistStorageException.class)
     public void updateNotExist() {
-        storage.update(new Resume("dummy"));
+        storage.update(fillResume("dummy", "dummy"));
     }
 
     @Test
