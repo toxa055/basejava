@@ -8,10 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public abstract class AbstractFileStorage extends AbstractStorage<File>  {
+public class FileStorage extends AbstractStorage<File>  {
     private File directory;
 
-    protected AbstractFileStorage(File directory) {
+    protected FileStorage(File directory) {
         Objects.requireNonNull(directory, "directory must not be null");
         if (!directory.isDirectory()) {
             throw new IllegalArgumentException(directory.getAbsolutePath() + " is not directory");
@@ -99,7 +99,17 @@ public abstract class AbstractFileStorage extends AbstractStorage<File>  {
         return list;
     }
 
-    protected abstract void doWrite(Resume resume, OutputStream os) throws IOException;
+    private void doWrite(Resume resume, OutputStream os) throws IOException {
+        try (ObjectOutputStream oos = new ObjectOutputStream(os)) {
+            oos.writeObject(resume);
+        }
+    }
 
-    protected abstract Resume doRead(InputStream is) throws IOException;
+    private Resume doRead(InputStream is) throws IOException {
+        try (ObjectInputStream ois = new ObjectInputStream(is)) {
+            return (Resume) ois.readObject();
+        } catch (ClassNotFoundException e) {
+            throw new StorageException("Error read resume", null, e);
+        }
+    }
 }

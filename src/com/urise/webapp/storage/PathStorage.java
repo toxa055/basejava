@@ -11,10 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public abstract class AbstractPathStorage extends AbstractStorage<Path> {
+public class PathStorage extends AbstractStorage<Path> {
     private Path directory;
 
-    protected AbstractPathStorage(String dir) {
+    protected PathStorage(String dir) {
         directory = Paths.get(dir);
         Objects.requireNonNull(directory, "directory must not be null");
         if (!Files.isDirectory(directory) || !Files.isWritable(directory)) {
@@ -98,7 +98,17 @@ public abstract class AbstractPathStorage extends AbstractStorage<Path> {
         return list;
     }
 
-    protected abstract void doWrite(Resume resume, OutputStream os) throws IOException;
+    private void doWrite(Resume resume, OutputStream os) throws IOException {
+        try (ObjectOutputStream oos = new ObjectOutputStream(os)) {
+            oos.writeObject(resume);
+        }
+    }
 
-    protected abstract Resume doRead(InputStream is) throws IOException;
+    private Resume doRead(InputStream is) throws IOException {
+        try (ObjectInputStream ois = new ObjectInputStream(is)) {
+            return (Resume) ois.readObject();
+        } catch (ClassNotFoundException e) {
+            throw new StorageException("Error read resume", null, e);
+        }
+    }
 }

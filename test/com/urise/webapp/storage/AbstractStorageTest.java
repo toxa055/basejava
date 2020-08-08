@@ -15,7 +15,7 @@ import static com.urise.webapp.model.ResumeTestData.fillResume;
 
 public abstract class AbstractStorageTest {
     protected Storage storage;
-    protected static final File STORAGE_DIR = new File("storage");
+    protected static final File STORAGE_DIR = new File("resumestorage");
 
     private final static String UUID_0 = "uuid0";
     private final static String UUID_1 = "uuid1";
