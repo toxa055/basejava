@@ -13,13 +13,15 @@ import java.util.Objects;
 
 public class PathStorage extends AbstractStorage<Path> {
     private Path directory;
+    private Strategy strategy;
 
-    protected PathStorage(String dir) {
+    protected PathStorage(String dir, Strategy strategy) {
         directory = Paths.get(dir);
         Objects.requireNonNull(directory, "directory must not be null");
         if (!Files.isDirectory(directory) || !Files.isWritable(directory)) {
             throw new IllegalArgumentException(dir + " is not directory or is not writable");
         }
+        this.strategy = strategy;
     }
 
     @Override
@@ -53,7 +55,7 @@ public class PathStorage extends AbstractStorage<Path> {
     @Override
     protected void doUpdate(Resume resume, Path file) {
         try {
-            doWrite(resume, new BufferedOutputStream(new FileOutputStream(file.toString())));
+            strategy.doWrite(resume, new BufferedOutputStream(new FileOutputStream(file.toString())));
         } catch (IOException e) {
             throw new StorageException("Path write error", resume.getUuid(), e);
         }
@@ -71,7 +73,7 @@ public class PathStorage extends AbstractStorage<Path> {
     @Override
     protected Resume doGet(Path file) {
         try {
-            return doRead(new BufferedInputStream(new FileInputStream(file.toString())));
+            return strategy.doRead(new BufferedInputStream(new FileInputStream(file.toString())));
         } catch (IOException e) {
             throw new StorageException("Path read error", file.toString(), e);
         }
@@ -96,19 +98,5 @@ public class PathStorage extends AbstractStorage<Path> {
             throw new StorageException("Directory read error", null, e);
         }
         return list;
-    }
-
-    private void doWrite(Resume resume, OutputStream os) throws IOException {
-        try (ObjectOutputStream oos = new ObjectOutputStream(os)) {
-            oos.writeObject(resume);
-        }
-    }
-
-    private Resume doRead(InputStream is) throws IOException {
-        try (ObjectInputStream ois = new ObjectInputStream(is)) {
-            return (Resume) ois.readObject();
-        } catch (ClassNotFoundException e) {
-            throw new StorageException("Error read resume", null, e);
-        }
     }
 }
