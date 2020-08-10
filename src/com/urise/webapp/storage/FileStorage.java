@@ -2,6 +2,7 @@ package com.urise.webapp.storage;
 
 import com.urise.webapp.exception.StorageException;
 import com.urise.webapp.model.Resume;
+import com.urise.webapp.storage.serialize.Strategy;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -9,8 +10,8 @@ import java.util.List;
 import java.util.Objects;
 
 public class FileStorage extends AbstractStorage<File> {
-    private File directory;
-    private Strategy strategy;
+    private final File directory;
+    private final Strategy strategy;
 
     protected FileStorage(File directory, Strategy strategy) {
         Objects.requireNonNull(directory, "directory must not be null");
@@ -26,14 +27,14 @@ public class FileStorage extends AbstractStorage<File> {
 
     @Override
     public void clear() {
-        for (File file : getListFiles()) {
+        for (File file : getFiles()) {
             doDelete(file);
         }
     }
 
     @Override
     public int size() {
-        return getListFiles().length;
+        return getFiles().length;
     }
 
     @Override
@@ -83,7 +84,7 @@ public class FileStorage extends AbstractStorage<File> {
 
     @Override
     protected List<Resume> doCopyAll() {
-        File[] files = getListFiles();
+        File[] files = getFiles();
         List<Resume> list = new ArrayList<>(files.length);
         for (File file : files) {
             list.add(doGet(file));
@@ -91,7 +92,11 @@ public class FileStorage extends AbstractStorage<File> {
         return list;
     }
 
-    private File[] getListFiles() {
-        return Objects.requireNonNull(directory.listFiles(), "Directory error");
+    private File[] getFiles() {
+        File[] files = directory.listFiles();
+        if (files == null) {
+            throw new StorageException("Directory error");
+        }
+        return files;
     }
 }

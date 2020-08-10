@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.*;
-import static com.urise.webapp.model.ResumeTestData.fillResume;
+import static com.urise.webapp.ResumeTestData.fillResume;
 
 public abstract class AbstractStorageTest {
     protected Storage storage;

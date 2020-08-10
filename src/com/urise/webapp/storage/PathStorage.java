@@ -2,19 +2,20 @@ package com.urise.webapp.storage;
 
 import com.urise.webapp.exception.StorageException;
 import com.urise.webapp.model.Resume;
+import com.urise.webapp.storage.serialize.Strategy;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class PathStorage extends AbstractStorage<Path> {
-    private Path directory;
-    private Strategy strategy;
+    private final Path directory;
+    private final Strategy strategy;
 
     protected PathStorage(String dir, Strategy strategy) {
         directory = Paths.get(dir);
@@ -27,12 +28,12 @@ public class PathStorage extends AbstractStorage<Path> {
 
     @Override
     public void clear() {
-        getStreamPaths().forEach(this::doDelete);
+        getPaths().forEach(this::doDelete);
     }
 
     @Override
     public int size() {
-        return (int) getStreamPaths().count();
+        return (int) getPaths().count();
     }
 
     @Override
@@ -85,12 +86,10 @@ public class PathStorage extends AbstractStorage<Path> {
 
     @Override
     protected List<Resume> doCopyAll() {
-        List<Resume> list = new ArrayList<>();
-        getStreamPaths().forEach(r -> list.add(doGet(r)));
-        return list;
+        return getPaths().map(this::doGet).collect(Collectors.toList());
     }
 
-    private Stream<Path> getStreamPaths() {
+    private Stream<Path> getPaths() {
         try {
             return Files.list(directory);
         } catch (IOException e) {
