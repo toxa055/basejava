@@ -1,6 +1,5 @@
 package com.urise.webapp.storage;
 
-import com.urise.webapp.storage.serialize.DataStreamStrategy;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -15,7 +14,7 @@ import org.junit.runners.Suite;
         ObjectPathStorageTest.class,
         XMLPathStorageTest.class,
         JsonPathStorageTest.class,
-        DataStreamStrategy.class
+        DataPathStorageTest.class
 })
 
 public class AllStorageTest {
