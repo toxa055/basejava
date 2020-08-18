@@ -13,6 +13,7 @@ public class DataStreamStrategy implements Strategy {
     public void doWrite(Resume resume, OutputStream os) throws IOException {
         try (DataOutputStream dos = new DataOutputStream(os)) {
             Map<ContactType, String> contacts = resume.getContacts();
+            Map<SectionType, AbstractSection> sections = resume.getSections();
             dos.writeUTF(resume.getUuid());
             dos.writeUTF(resume.getFullName());
             dos.writeInt(contacts.size());
@@ -21,14 +22,26 @@ public class DataStreamStrategy implements Strategy {
                 dos.writeUTF(entry.getValue());
             }
 
-            writeSimpleTextSection(dos, resume, SectionType.PERSONAL);
-            writeSimpleTextSection(dos, resume, SectionType.OBJECTIVE);
-
-            writeListSection(dos, resume, SectionType.QUALIFICATIONS);
-            writeListSection(dos, resume, SectionType.ACHIEVEMENT);
-
-            writeOrganizationSection(dos, resume, SectionType.EDUCATION);
-            writeOrganizationSection(dos, resume, SectionType.EXPERIENCE);
+            dos.writeInt(sections.size());
+            for (Map.Entry<SectionType, AbstractSection> entry : sections.entrySet()) {
+                SectionType sectionType = entry.getKey();
+                switch (sectionType) {
+                    case PERSONAL:
+                    case OBJECTIVE:
+                        writeSimpleTextSection(dos, resume, sectionType);
+                        break;
+                    case QUALIFICATIONS:
+                    case ACHIEVEMENT:
+                        writeListSection(dos, resume, sectionType);
+                        break;
+                    case EDUCATION:
+                    case EXPERIENCE:
+                        writeOrganizationSection(dos, resume, sectionType);
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
     }
 
@@ -41,15 +54,26 @@ public class DataStreamStrategy implements Strategy {
                 resume.addContact(ContactType.valueOf(dis.readUTF()), dis.readUTF());
             }
 
-            resume.addSection(readSectionType(dis), readSimpleTextSection(dis));
-            resume.addSection(readSectionType(dis), readSimpleTextSection(dis));
-
-            resume.addSection(readSectionType(dis), readListSection(dis));
-            resume.addSection(readSectionType(dis), readListSection(dis));
-
-            resume.addSection(readSectionType(dis), readOrganizationSection(dis));
-            resume.addSection(readSectionType(dis), readOrganizationSection(dis));
-
+            size = dis.readInt();
+            for (int i = 0; i < size; i++) {
+                SectionType sectionType = readSectionType(dis);
+                switch (sectionType) {
+                    case PERSONAL:
+                    case OBJECTIVE:
+                        resume.addSection(sectionType, readSimpleTextSection(dis));
+                        break;
+                    case QUALIFICATIONS:
+                    case ACHIEVEMENT:
+                        resume.addSection(sectionType, readListSection(dis));
+                        break;
+                    case EDUCATION:
+                    case EXPERIENCE:
+                        resume.addSection(sectionType, readOrganizationSection(dis));
+                        break;
+                    default:
+                        break;
+                }
+            }
             return resume;
         }
     }
