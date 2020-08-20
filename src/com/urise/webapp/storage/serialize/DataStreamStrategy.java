@@ -7,6 +7,7 @@ import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class DataStreamStrategy implements Strategy {
     @Override
@@ -78,6 +79,16 @@ public class DataStreamStrategy implements Strategy {
         }
     }
 
+    static <T> Consumer<T> throwingConsumerWrapper(ThrowingConsumer<T, Exception> throwingConsumer) {
+        return i -> {
+            try {
+                throwingConsumer.accept(i);
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+        };
+    }
+
     private SectionType readSectionType(DataInputStream dis) throws IOException {
         return SectionType.valueOf(dis.readUTF());
     }
@@ -95,9 +106,7 @@ public class DataStreamStrategy implements Strategy {
         List<String> list = ((ListSection) resume.getSection(st)).getItems();
         dos.writeUTF(st.name());
         dos.writeInt(list.size());
-        for (String str : list) {
-            dos.writeUTF(str);
-        }
+        list.forEach(throwingConsumerWrapper(dos::writeUTF));
     }
 
     private ListSection readListSection(DataInputStream dis) throws IOException {
@@ -113,19 +122,25 @@ public class DataStreamStrategy implements Strategy {
         List<Organization> organizations = ((OrganizationSection) resume.getSection(st)).getOrganizations();
         dos.writeUTF(st.name());
         dos.writeInt(organizations.size());
-        for (Organization org : organizations) {
-            writeLink(dos, org.getHomepage());
-            writePositions(dos, org.getPositions());
-        }
+        organizations.forEach(throwingConsumerWrapper(x -> writeOrganization(dos, x)));
     }
 
     private OrganizationSection readOrganizationSection(DataInputStream dis) throws IOException {
         List<Organization> organizations = new ArrayList<>();
         int size = dis.readInt();
         for (int i = 0; i < size; i++) {
-            organizations.add(new Organization(readLink(dis), readPositions(dis)));
+            organizations.add(readOrganization(dis));
         }
         return new OrganizationSection(organizations);
+    }
+
+    private void writeOrganization(DataOutputStream dos, Organization org) throws IOException {
+        writeLink(dos, org.getHomepage());
+        writePositions(dos, org.getPositions());
+    }
+
+    private Organization readOrganization(DataInputStream dis) throws IOException {
+        return new Organization(readLink(dis), readPositions(dis));
     }
 
     private void writeLink(DataOutputStream dos, Link link) throws IOException {
