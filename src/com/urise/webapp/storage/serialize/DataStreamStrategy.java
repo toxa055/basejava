@@ -7,7 +7,6 @@ import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 public class DataStreamStrategy implements Strategy {
     @Override
@@ -79,14 +78,10 @@ public class DataStreamStrategy implements Strategy {
         }
     }
 
-    static <T> Consumer<T> throwingConsumerWrapper(ThrowingConsumer<T, Exception> throwingConsumer) {
-        return i -> {
-            try {
-                throwingConsumer.accept(i);
-            } catch (Exception ex) {
-                throw new RuntimeException(ex);
-            }
-        };
+    private static <T> void forEach(Performer<T> p, List<T> list) throws IOException {
+        for (T t : list) {
+            p.perform(t);
+        }
     }
 
     private SectionType readSectionType(DataInputStream dis) throws IOException {
@@ -106,7 +101,7 @@ public class DataStreamStrategy implements Strategy {
         List<String> list = ((ListSection) resume.getSection(st)).getItems();
         dos.writeUTF(st.name());
         dos.writeInt(list.size());
-        list.forEach(throwingConsumerWrapper(dos::writeUTF));
+        forEach(dos::writeUTF, list);
     }
 
     private ListSection readListSection(DataInputStream dis) throws IOException {
@@ -122,7 +117,7 @@ public class DataStreamStrategy implements Strategy {
         List<Organization> organizations = ((OrganizationSection) resume.getSection(st)).getOrganizations();
         dos.writeUTF(st.name());
         dos.writeInt(organizations.size());
-        organizations.forEach(throwingConsumerWrapper(x -> writeOrganization(dos, x)));
+        forEach(x -> writeOrganization(dos, x), organizations);
     }
 
     private OrganizationSection readOrganizationSection(DataInputStream dis) throws IOException {
