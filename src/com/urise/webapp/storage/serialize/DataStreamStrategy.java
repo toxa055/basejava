@@ -5,6 +5,7 @@ import com.urise.webapp.model.*;
 import java.io.*;
 import java.time.Month;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -17,14 +18,14 @@ public class DataStreamStrategy implements Strategy {
             dos.writeUTF(resume.getUuid());
             dos.writeUTF(resume.getFullName());
             dos.writeInt(contacts.size());
-            for (Map.Entry<ContactType, String> entry : contacts.entrySet()) {
-                dos.writeUTF(entry.getKey().name());
-                dos.writeUTF(entry.getValue());
-            }
+            forEach(contacts.entrySet(),
+                    x -> dos.writeUTF(x.getKey().name()),
+                    x -> dos.writeUTF(x.getValue()));
 
             dos.writeInt(sections.size());
-            for (Map.Entry<SectionType, AbstractSection> entry : sections.entrySet()) {
-                SectionType sectionType = entry.getKey();
+            forEach(sections.entrySet(), x ->
+            {
+                SectionType sectionType = x.getKey();
                 switch (sectionType) {
                     case PERSONAL:
                     case OBJECTIVE:
@@ -41,7 +42,7 @@ public class DataStreamStrategy implements Strategy {
                     default:
                         break;
                 }
-            }
+            });
         }
     }
 
@@ -78,8 +79,8 @@ public class DataStreamStrategy implements Strategy {
         }
     }
 
-    private static <T> void forEach(List<T> list, Performer<T>... performer) throws IOException {
-        for (T t : list) {
+    private static <T> void forEach(Collection<T> collection, Performer<T>... performer) throws IOException {
+        for (T t : collection) {
             for (Performer<T> p : performer)
                 p.perform(t);
         }
