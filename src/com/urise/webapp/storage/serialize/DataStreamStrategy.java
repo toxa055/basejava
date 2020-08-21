@@ -78,9 +78,10 @@ public class DataStreamStrategy implements Strategy {
         }
     }
 
-    private static <T> void forEach(Performer<T> p, List<T> list) throws IOException {
+    private static <T> void forEach(List<T> list, Performer<T>... performer) throws IOException {
         for (T t : list) {
-            p.perform(t);
+            for (Performer<T> p : performer)
+                p.perform(t);
         }
     }
 
@@ -101,7 +102,7 @@ public class DataStreamStrategy implements Strategy {
         List<String> list = ((ListSection) resume.getSection(st)).getItems();
         dos.writeUTF(st.name());
         dos.writeInt(list.size());
-        forEach(dos::writeUTF, list);
+        forEach(list, dos::writeUTF);
     }
 
     private ListSection readListSection(DataInputStream dis) throws IOException {
@@ -117,7 +118,7 @@ public class DataStreamStrategy implements Strategy {
         List<Organization> organizations = ((OrganizationSection) resume.getSection(st)).getOrganizations();
         dos.writeUTF(st.name());
         dos.writeInt(organizations.size());
-        forEach(x -> writeOrganization(dos, x), organizations);
+        forEach(organizations, x -> writeOrganization(dos, x));
     }
 
     private OrganizationSection readOrganizationSection(DataInputStream dis) throws IOException {
@@ -155,15 +156,13 @@ public class DataStreamStrategy implements Strategy {
 
     private void writePositions(DataOutputStream dos, List<Organization.Position> positions) throws IOException {
         dos.writeInt(positions.size());
-        for (Organization.Position pos : positions) {
-            String description = pos.getDescription();
-            dos.writeInt(pos.getStartDate().getYear());
-            dos.writeUTF(pos.getStartDate().getMonth().name());
-            dos.writeInt(pos.getEndDate().getYear());
-            dos.writeUTF(pos.getEndDate().getMonth().name());
-            dos.writeUTF(pos.getTitle());
-            dos.writeUTF(description == null ? "null" : description);
-        }
+        forEach(positions,
+                x -> dos.writeInt(x.getStartDate().getYear()),
+                x -> dos.writeUTF(x.getStartDate().getMonth().name()),
+                x -> dos.writeInt(x.getEndDate().getYear()),
+                x -> dos.writeUTF(x.getEndDate().getMonth().name()),
+                x -> dos.writeUTF(x.getTitle()),
+                x -> dos.writeUTF(x.getDescription() == null ? "null" : x.getDescription()));
     }
 
     private List<Organization.Position> readPositions(DataInputStream dis) throws IOException {
