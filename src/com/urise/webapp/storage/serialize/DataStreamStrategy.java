@@ -17,7 +17,7 @@ public class DataStreamStrategy implements Strategy {
             Map<SectionType, AbstractSection> sections = resume.getSections();
             dos.writeUTF(resume.getUuid());
             dos.writeUTF(resume.getFullName());
-            writeEachElement(dos, contacts.entrySet(), x -> writeMapEntryElement(x, dos));
+            writeEachElement(dos, contacts.entrySet(), x -> writeContact(x, dos));
 
             writeEachElement(dos, sections.entrySet(), x ->
             {
@@ -82,7 +82,7 @@ public class DataStreamStrategy implements Strategy {
         }
     }
 
-    private <K extends Enum<K>> void writeMapEntryElement(Map.Entry<K, String> entry, DataOutputStream dos) throws IOException {
+    private void writeContact(Map.Entry<ContactType, String> entry, DataOutputStream dos) throws IOException {
         dos.writeUTF(entry.getKey().name());
         dos.writeUTF(entry.getValue());
     }
