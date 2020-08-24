@@ -17,11 +17,13 @@ public class DataStreamStrategy implements Strategy {
             Map<SectionType, AbstractSection> sections = resume.getSections();
             dos.writeUTF(resume.getUuid());
             dos.writeUTF(resume.getFullName());
-            writeEachElement(dos, contacts.entrySet(), x -> writeContact(x, dos));
+            writeEachElement(dos, contacts.entrySet(), entry -> {
+                dos.writeUTF(entry.getKey().name());
+                dos.writeUTF(entry.getValue());
+            });
 
-            writeEachElement(dos, sections.entrySet(), x ->
-            {
-                SectionType sectionType = x.getKey();
+            writeEachElement(dos, sections.entrySet(), entry -> {
+                SectionType sectionType = entry.getKey();
                 switch (sectionType) {
                     case PERSONAL:
                     case OBJECTIVE:
@@ -82,11 +84,6 @@ public class DataStreamStrategy implements Strategy {
         }
     }
 
-    private void writeContact(Map.Entry<ContactType, String> entry, DataOutputStream dos) throws IOException {
-        dos.writeUTF(entry.getKey().name());
-        dos.writeUTF(entry.getValue());
-    }
-
     private SectionType readSectionType(DataInputStream dis) throws IOException {
         return SectionType.valueOf(dis.readUTF());
     }
@@ -108,7 +105,7 @@ public class DataStreamStrategy implements Strategy {
 
     private ListSection readListSection(DataInputStream dis) throws IOException {
         int size = dis.readInt();
-        List<String> list = new ArrayList<>();
+        List<String> list = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             list.add(dis.readUTF());
         }
@@ -118,75 +115,47 @@ public class DataStreamStrategy implements Strategy {
     private void writeOrganizationSection(DataOutputStream dos, Resume resume, SectionType st) throws IOException {
         List<Organization> organizations = ((OrganizationSection) resume.getSection(st)).getOrganizations();
         dos.writeUTF(st.name());
-        writeEachElement(dos, organizations, x -> writeOrganization(dos, x));
+        writeEachElement(dos, organizations, org -> {
+            String url = org.getHomepage().getUrl();
+            dos.writeUTF(org.getHomepage().getName());
+            dos.writeUTF(url == null ? "null" : url);
+            writeEachElement(dos, org.getPositions(), pos -> {
+                String description = pos.getDescription();
+                dos.writeInt(pos.getStartDate().getYear());
+                dos.writeUTF(pos.getStartDate().getMonth().name());
+                dos.writeInt(pos.getEndDate().getYear());
+                dos.writeUTF(pos.getEndDate().getMonth().name());
+                dos.writeUTF(pos.getTitle());
+                dos.writeUTF(description == null ? "null" : description);
+            });
+        });
     }
 
     private OrganizationSection readOrganizationSection(DataInputStream dis) throws IOException {
-        List<Organization> organizations = new ArrayList<>();
         int size = dis.readInt();
+        List<Organization> organizations = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
-            organizations.add(readOrganization(dis));
+            String name = dis.readUTF();
+            String url = dis.readUTF();
+            int count = dis.readInt();
+            List<Organization.Position> positions = new ArrayList<>(count);
+            if (url.equals("null")) {
+                url = null;
+            }
+            for (int j = 0; j < count; j++) {
+                int startYear = dis.readInt();
+                Month startMonth = Month.valueOf(dis.readUTF());
+                int endYear = dis.readInt();
+                Month endMonth = Month.valueOf(dis.readUTF());
+                String title = dis.readUTF();
+                String description = dis.readUTF();
+                if (description.equals("null")) {
+                    description = null;
+                }
+                positions.add(new Organization.Position(startYear, startMonth, endYear, endMonth, title, description));
+            }
+            organizations.add(new Organization(new Link(name, url), positions));
         }
         return new OrganizationSection(organizations);
-    }
-
-    private void writeOrganization(DataOutputStream dos, Organization org) throws IOException {
-        writeLink(dos, org.getHomepage());
-        writePositionList(dos, org.getPositions());
-    }
-
-    private Organization readOrganization(DataInputStream dis) throws IOException {
-        return new Organization(readLink(dis), readPositionList(dis));
-    }
-
-    private void writeLink(DataOutputStream dos, Link link) throws IOException {
-        String url = link.getUrl();
-        dos.writeUTF(link.getName());
-        dos.writeUTF(url == null ? "null" : url);
-    }
-
-    private Link readLink(DataInputStream dis) throws IOException {
-        String name = dis.readUTF();
-        String url = dis.readUTF();
-        if (url.equals("null")) {
-            url = null;
-        }
-        return new Link(name, url);
-    }
-
-    private void writePosition(DataOutputStream dos, Organization.Position position) throws IOException {
-        String description = position.getDescription();
-        dos.writeInt(position.getStartDate().getYear());
-        dos.writeUTF(position.getStartDate().getMonth().name());
-        dos.writeInt(position.getEndDate().getYear());
-        dos.writeUTF(position.getEndDate().getMonth().name());
-        dos.writeUTF(position.getTitle());
-        dos.writeUTF(description == null ? "null" : description);
-    }
-
-    private Organization.Position readPosition(DataInputStream dis) throws IOException {
-        int startYear = dis.readInt();
-        Month startMonth = Month.valueOf(dis.readUTF());
-        int endYear = dis.readInt();
-        Month endMonth = Month.valueOf(dis.readUTF());
-        String title = dis.readUTF();
-        String description = dis.readUTF();
-        if (description.equals("null")) {
-            description = null;
-        }
-        return new Organization.Position(startYear, startMonth, endYear, endMonth, title, description);
-    }
-
-    private void writePositionList(DataOutputStream dos, List<Organization.Position> positions) throws IOException {
-        writeEachElement(dos, positions, x -> writePosition(dos, x));
-    }
-
-    private List<Organization.Position> readPositionList(DataInputStream dis) throws IOException {
-        List<Organization.Position> positions = new ArrayList<>();
-        int size = dis.readInt();
-        for (int i = 0; i < size; i++) {
-            positions.add(readPosition(dis));
-        }
-        return positions;
     }
 }
