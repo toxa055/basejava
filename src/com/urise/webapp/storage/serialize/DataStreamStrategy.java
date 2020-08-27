@@ -3,11 +3,9 @@ package com.urise.webapp.storage.serialize;
 import com.urise.webapp.model.*;
 
 import java.io.*;
+import java.time.LocalDate;
 import java.time.Month;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DataStreamStrategy implements Strategy {
     @Override
@@ -24,18 +22,39 @@ public class DataStreamStrategy implements Strategy {
 
             writeEachElement(dos, sections.entrySet(), entry -> {
                 SectionType sectionType = entry.getKey();
+                String name = sectionType.name();
                 switch (sectionType) {
                     case PERSONAL:
                     case OBJECTIVE:
-                        writeSimpleTextSection(dos, resume, sectionType);
+                        dos.writeUTF(name);
+                        dos.writeUTF(((SimpleTextSection) resume.getSection(sectionType)).getDescription());
                         break;
                     case QUALIFICATIONS:
                     case ACHIEVEMENT:
-                        writeListSection(dos, resume, sectionType);
+                        List<String> list = ((ListSection) resume.getSection(sectionType)).getItems();
+                        dos.writeUTF(name);
+                        writeEachElement(dos, list, dos::writeUTF);
                         break;
                     case EDUCATION:
                     case EXPERIENCE:
-                        writeOrganizationSection(dos, resume, sectionType);
+                        List<Organization> organizations = ((OrganizationSection) resume.getSection(sectionType)).getOrganizations();
+                        dos.writeUTF(name);
+                        writeEachElement(dos, organizations, org -> {
+                            String url = org.getHomepage().getUrl();
+                            dos.writeUTF(org.getHomepage().getName());
+                            dos.writeUTF(url == null ? "null" : url);
+                            writeEachElement(dos, org.getPositions(), pos -> {
+                                String description = pos.getDescription();
+                                LocalDate startDate = pos.getStartDate();
+                                LocalDate endDate = pos.getEndDate();
+                                dos.writeInt(startDate.getYear());
+                                dos.writeUTF(startDate.getMonth().name());
+                                dos.writeInt(endDate.getYear());
+                                dos.writeUTF(endDate.getMonth().name());
+                                dos.writeUTF(pos.getTitle());
+                                dos.writeUTF(description == null ? "null" : description);
+                            });
+                        });
                         break;
                     default:
                         break;
@@ -55,19 +74,37 @@ public class DataStreamStrategy implements Strategy {
 
             size = dis.readInt();
             for (int i = 0; i < size; i++) {
-                SectionType sectionType = readSectionType(dis);
+                SectionType sectionType = SectionType.valueOf(dis.readUTF());
                 switch (sectionType) {
                     case PERSONAL:
                     case OBJECTIVE:
-                        resume.addSection(sectionType, readSimpleTextSection(dis));
+                        resume.addSection(sectionType, new SimpleTextSection(dis.readUTF()));
                         break;
                     case QUALIFICATIONS:
                     case ACHIEVEMENT:
-                        resume.addSection(sectionType, readListSection(dis));
+                        resume.addSection(sectionType, new ListSection(readEachElement(dis, dis::readUTF)));
                         break;
                     case EDUCATION:
                     case EXPERIENCE:
-                        resume.addSection(sectionType, readOrganizationSection(dis));
+                        resume.addSection(sectionType, new OrganizationSection(readEachElement(dis, () -> {
+                            String name = dis.readUTF();
+                            String url = dis.readUTF();
+                            if (url.equals("null")) {
+                                url = null;
+                            }
+                            return new Organization(new Link(name, url), readEachElement(dis, () -> {
+                                int startYear = dis.readInt();
+                                Month startMonth = Month.valueOf(dis.readUTF());
+                                int endYear = dis.readInt();
+                                Month endMonth = Month.valueOf(dis.readUTF());
+                                String title = dis.readUTF();
+                                String description = dis.readUTF();
+                                if (description.equals("null")) {
+                                    description = null;
+                                }
+                                return new Organization.Position(startYear, startMonth, endYear, endMonth, title, description);
+                            }));
+                        })));
                         break;
                     default:
                         break;
@@ -77,85 +114,19 @@ public class DataStreamStrategy implements Strategy {
         }
     }
 
-    private <T> void writeEachElement(DataOutputStream dos, Collection<T> collection, Performer<T> performer) throws IOException {
+    private <T> void writeEachElement(DataOutputStream dos, Collection<T> collection, DataWriter<T> dw) throws IOException {
         dos.writeInt(collection.size());
         for (T t : collection) {
-            performer.perform(t);
+            dw.perform(t);
         }
     }
 
-    private SectionType readSectionType(DataInputStream dis) throws IOException {
-        return SectionType.valueOf(dis.readUTF());
-    }
-
-    private void writeSimpleTextSection(DataOutputStream dos, Resume resume, SectionType st) throws IOException {
-        dos.writeUTF(st.name());
-        dos.writeUTF(((SimpleTextSection) resume.getSection(st)).getDescription());
-    }
-
-    private SimpleTextSection readSimpleTextSection(DataInputStream dis) throws IOException {
-        return new SimpleTextSection(dis.readUTF());
-    }
-
-    private void writeListSection(DataOutputStream dos, Resume resume, SectionType st) throws IOException {
-        List<String> list = ((ListSection) resume.getSection(st)).getItems();
-        dos.writeUTF(st.name());
-        writeEachElement(dos, list, dos::writeUTF);
-    }
-
-    private ListSection readListSection(DataInputStream dis) throws IOException {
+    private <T> List<T> readEachElement(DataInputStream dis, DataReader<T> dr) throws IOException {
         int size = dis.readInt();
-        List<String> list = new ArrayList<>(size);
+        List<T> list = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
-            list.add(dis.readUTF());
+            list.add(dr.perform());
         }
-        return new ListSection(list);
-    }
-
-    private void writeOrganizationSection(DataOutputStream dos, Resume resume, SectionType st) throws IOException {
-        List<Organization> organizations = ((OrganizationSection) resume.getSection(st)).getOrganizations();
-        dos.writeUTF(st.name());
-        writeEachElement(dos, organizations, org -> {
-            String url = org.getHomepage().getUrl();
-            dos.writeUTF(org.getHomepage().getName());
-            dos.writeUTF(url == null ? "null" : url);
-            writeEachElement(dos, org.getPositions(), pos -> {
-                String description = pos.getDescription();
-                dos.writeInt(pos.getStartDate().getYear());
-                dos.writeUTF(pos.getStartDate().getMonth().name());
-                dos.writeInt(pos.getEndDate().getYear());
-                dos.writeUTF(pos.getEndDate().getMonth().name());
-                dos.writeUTF(pos.getTitle());
-                dos.writeUTF(description == null ? "null" : description);
-            });
-        });
-    }
-
-    private OrganizationSection readOrganizationSection(DataInputStream dis) throws IOException {
-        int size = dis.readInt();
-        List<Organization> organizations = new ArrayList<>(size);
-        for (int i = 0; i < size; i++) {
-            String name = dis.readUTF();
-            String url = dis.readUTF();
-            int count = dis.readInt();
-            List<Organization.Position> positions = new ArrayList<>(count);
-            if (url.equals("null")) {
-                url = null;
-            }
-            for (int j = 0; j < count; j++) {
-                int startYear = dis.readInt();
-                Month startMonth = Month.valueOf(dis.readUTF());
-                int endYear = dis.readInt();
-                Month endMonth = Month.valueOf(dis.readUTF());
-                String title = dis.readUTF();
-                String description = dis.readUTF();
-                if (description.equals("null")) {
-                    description = null;
-                }
-                positions.add(new Organization.Position(startYear, startMonth, endYear, endMonth, title, description));
-            }
-            organizations.add(new Organization(new Link(name, url), positions));
-        }
-        return new OrganizationSection(organizations);
+        return list;
     }
 }
