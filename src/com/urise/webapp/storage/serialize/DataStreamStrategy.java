@@ -1,6 +1,7 @@
 package com.urise.webapp.storage.serialize;
 
 import com.urise.webapp.model.*;
+import com.urise.webapp.util.DateUtil;
 
 import java.io.*;
 import java.time.LocalDate;
@@ -45,12 +46,8 @@ public class DataStreamStrategy implements Strategy {
                             dos.writeUTF(url == null ? "null" : url);
                             writeEachElement(dos, org.getPositions(), pos -> {
                                 String description = pos.getDescription();
-                                LocalDate startDate = pos.getStartDate();
-                                LocalDate endDate = pos.getEndDate();
-                                dos.writeInt(startDate.getYear());
-                                dos.writeUTF(startDate.getMonth().name());
-                                dos.writeInt(endDate.getYear());
-                                dos.writeUTF(endDate.getMonth().name());
+                                writeDate(dos, pos.getStartDate());
+                                writeDate(dos, pos.getEndDate());
                                 dos.writeUTF(pos.getTitle());
                                 dos.writeUTF(description == null ? "null" : description);
                             });
@@ -67,13 +64,11 @@ public class DataStreamStrategy implements Strategy {
     public Resume doRead(InputStream is) throws IOException {
         try (DataInputStream dis = new DataInputStream(is)) {
             Resume resume = new Resume(dis.readUTF(), dis.readUTF());
-            int size = dis.readInt();
-            for (int i = 0; i < size; i++) {
+            readEachElement(dis, () -> {
                 resume.addContact(ContactType.valueOf(dis.readUTF()), dis.readUTF());
-            }
+            });
 
-            size = dis.readInt();
-            for (int i = 0; i < size; i++) {
+            readEachElement(dis, () -> {
                 SectionType sectionType = SectionType.valueOf(dis.readUTF());
                 switch (sectionType) {
                     case PERSONAL:
@@ -82,34 +77,38 @@ public class DataStreamStrategy implements Strategy {
                         break;
                     case QUALIFICATIONS:
                     case ACHIEVEMENT:
-                        resume.addSection(sectionType, new ListSection(readEachElement(dis, dis::readUTF)));
+                        List<String> list = new ArrayList<>();
+                        readEachElement(dis, () -> list.add(dis.readUTF()));
+                        resume.addSection(sectionType, new ListSection(list));
                         break;
                     case EDUCATION:
                     case EXPERIENCE:
-                        resume.addSection(sectionType, new OrganizationSection(readEachElement(dis, () -> {
+                        List<Organization> organizations = new ArrayList<>();
+                        readEachElement(dis, () -> {
                             String name = dis.readUTF();
                             String url = dis.readUTF();
                             if (url.equals("null")) {
                                 url = null;
                             }
-                            return new Organization(new Link(name, url), readEachElement(dis, () -> {
-                                int startYear = dis.readInt();
-                                Month startMonth = Month.valueOf(dis.readUTF());
-                                int endYear = dis.readInt();
-                                Month endMonth = Month.valueOf(dis.readUTF());
+                            List<Organization.Position> positions = new ArrayList<>();
+                            readEachElement(dis, () -> {
+                                LocalDate startDate = readDate(dis);
+                                LocalDate endDate = readDate(dis);
                                 String title = dis.readUTF();
                                 String description = dis.readUTF();
                                 if (description.equals("null")) {
                                     description = null;
                                 }
-                                return new Organization.Position(startYear, startMonth, endYear, endMonth, title, description);
-                            }));
-                        })));
+                                positions.add(new Organization.Position(startDate, endDate, title, description));
+                            });
+                            organizations.add(new Organization(new Link(name, url), positions));
+                        });
+                        resume.addSection(sectionType, new OrganizationSection(organizations));
                         break;
                     default:
                         break;
                 }
-            }
+            });
             return resume;
         }
     }
@@ -121,12 +120,19 @@ public class DataStreamStrategy implements Strategy {
         }
     }
 
-    private <T> List<T> readEachElement(DataInputStream dis, DataReader<T> dr) throws IOException {
+    private void readEachElement(DataInputStream dis, DataReader dr) throws IOException {
         int size = dis.readInt();
-        List<T> list = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
-            list.add(dr.perform());
+            dr.perform();
         }
-        return list;
+    }
+
+    private void writeDate(DataOutputStream dos, LocalDate date) throws IOException {
+        dos.writeInt(date.getYear());
+        dos.writeUTF(date.getMonth().name());
+    }
+
+    private LocalDate readDate(DataInputStream dis) throws IOException {
+        return DateUtil.of(dis.readInt(), Month.valueOf(dis.readUTF()));
     }
 }
