@@ -12,44 +12,36 @@ public class DataStreamStrategy implements Strategy {
     @Override
     public void doWrite(Resume resume, OutputStream os) throws IOException {
         try (DataOutputStream dos = new DataOutputStream(os)) {
-            Map<ContactType, String> contacts = resume.getContacts();
-            Map<SectionType, AbstractSection> sections = resume.getSections();
             dos.writeUTF(resume.getUuid());
             dos.writeUTF(resume.getFullName());
-            writeEachElement(dos, contacts.entrySet(), entry -> {
+            writeEachElement(dos, resume.getContacts().entrySet(), entry -> {
                 dos.writeUTF(entry.getKey().name());
                 dos.writeUTF(entry.getValue());
             });
 
-            writeEachElement(dos, sections.entrySet(), entry -> {
+            writeEachElement(dos, resume.getSections().entrySet(), entry -> {
                 SectionType sectionType = entry.getKey();
-                String name = sectionType.name();
+                AbstractSection section = entry.getValue();
+                dos.writeUTF(sectionType.name());
                 switch (sectionType) {
                     case PERSONAL:
                     case OBJECTIVE:
-                        dos.writeUTF(name);
-                        dos.writeUTF(((SimpleTextSection) resume.getSection(sectionType)).getDescription());
+                        dos.writeUTF(((SimpleTextSection) section).getDescription());
                         break;
                     case QUALIFICATIONS:
                     case ACHIEVEMENT:
-                        List<String> list = ((ListSection) resume.getSection(sectionType)).getItems();
-                        dos.writeUTF(name);
-                        writeEachElement(dos, list, dos::writeUTF);
+                        writeEachElement(dos, ((ListSection) section).getItems(), dos::writeUTF);
                         break;
                     case EDUCATION:
                     case EXPERIENCE:
-                        List<Organization> organizations = ((OrganizationSection) resume.getSection(sectionType)).getOrganizations();
-                        dos.writeUTF(name);
-                        writeEachElement(dos, organizations, org -> {
-                            String url = org.getHomepage().getUrl();
+                        writeEachElement(dos, ((OrganizationSection) section).getOrganizations(), org -> {
                             dos.writeUTF(org.getHomepage().getName());
-                            dos.writeUTF(url == null ? "null" : url);
+                            dos.writeUTF(org.getHomepage().getUrl());
                             writeEachElement(dos, org.getPositions(), pos -> {
-                                String description = pos.getDescription();
                                 writeDate(dos, pos.getStartDate());
                                 writeDate(dos, pos.getEndDate());
                                 dos.writeUTF(pos.getTitle());
-                                dos.writeUTF(description == null ? "null" : description);
+                                dos.writeUTF(pos.getDescription());
                             });
                         });
                         break;
@@ -64,50 +56,11 @@ public class DataStreamStrategy implements Strategy {
     public Resume doRead(InputStream is) throws IOException {
         try (DataInputStream dis = new DataInputStream(is)) {
             Resume resume = new Resume(dis.readUTF(), dis.readUTF());
-            readEachElement(dis, () -> {
-                resume.addContact(ContactType.valueOf(dis.readUTF()), dis.readUTF());
-            });
+            readEachElement(dis, () -> resume.addContact(ContactType.valueOf(dis.readUTF()), dis.readUTF()));
 
             readEachElement(dis, () -> {
                 SectionType sectionType = SectionType.valueOf(dis.readUTF());
-                switch (sectionType) {
-                    case PERSONAL:
-                    case OBJECTIVE:
-                        resume.addSection(sectionType, new SimpleTextSection(dis.readUTF()));
-                        break;
-                    case QUALIFICATIONS:
-                    case ACHIEVEMENT:
-                        List<String> list = new ArrayList<>();
-                        readEachElement(dis, () -> list.add(dis.readUTF()));
-                        resume.addSection(sectionType, new ListSection(list));
-                        break;
-                    case EDUCATION:
-                    case EXPERIENCE:
-                        List<Organization> organizations = new ArrayList<>();
-                        readEachElement(dis, () -> {
-                            String name = dis.readUTF();
-                            String url = dis.readUTF();
-                            if (url.equals("null")) {
-                                url = null;
-                            }
-                            List<Organization.Position> positions = new ArrayList<>();
-                            readEachElement(dis, () -> {
-                                LocalDate startDate = readDate(dis);
-                                LocalDate endDate = readDate(dis);
-                                String title = dis.readUTF();
-                                String description = dis.readUTF();
-                                if (description.equals("null")) {
-                                    description = null;
-                                }
-                                positions.add(new Organization.Position(startDate, endDate, title, description));
-                            });
-                            organizations.add(new Organization(new Link(name, url), positions));
-                        });
-                        resume.addSection(sectionType, new OrganizationSection(organizations));
-                        break;
-                    default:
-                        break;
-                }
+                resume.addSection(sectionType, readSection(dis, sectionType));
             });
             return resume;
         }
@@ -116,15 +69,46 @@ public class DataStreamStrategy implements Strategy {
     private <T> void writeEachElement(DataOutputStream dos, Collection<T> collection, DataWriter<T> dw) throws IOException {
         dos.writeInt(collection.size());
         for (T t : collection) {
-            dw.perform(t);
+            dw.write(t);
         }
     }
 
-    private void readEachElement(DataInputStream dis, DataReader dr) throws IOException {
+    private void readEachElement(DataInputStream dis, DataPerformer dp) throws IOException {
         int size = dis.readInt();
         for (int i = 0; i < size; i++) {
-            dr.perform();
+            dp.perform();
         }
+    }
+
+    private AbstractSection readSection(DataInputStream dis, SectionType sectionType) throws IOException {
+        switch (sectionType) {
+            case PERSONAL:
+            case OBJECTIVE:
+                return new SimpleTextSection(dis.readUTF());
+            case QUALIFICATIONS:
+            case ACHIEVEMENT:
+                return new ListSection(readList(dis, dis::readUTF));
+            case EDUCATION:
+            case EXPERIENCE:
+                return new OrganizationSection(readList(dis, () ->
+                        new Organization(new Link(dis.readUTF(), dis.readUTF()),
+                                readList(dis, () ->
+                                        new Organization.Position(readDate(dis), readDate(dis),
+                                                dis.readUTF(), dis.readUTF())
+                                ))
+                ));
+            default:
+                throw new IllegalStateException();
+        }
+    }
+
+    private <T> List<T> readList(DataInputStream dis, DataReader<T> dr) throws IOException {
+        int size = dis.readInt();
+        List<T> list = new ArrayList<>(size);
+        for (int i = 0; i < size; i++) {
+            list.add(dr.read());
+        }
+        return list;
     }
 
     private void writeDate(DataOutputStream dos, LocalDate date) throws IOException {
@@ -134,5 +118,17 @@ public class DataStreamStrategy implements Strategy {
 
     private LocalDate readDate(DataInputStream dis) throws IOException {
         return DateUtil.of(dis.readInt(), Month.valueOf(dis.readUTF()));
+    }
+
+    private interface DataReader<T> {
+        T read() throws IOException;
+    }
+
+    private interface DataWriter<T> {
+        void write(T t) throws IOException;
+    }
+
+    private interface DataPerformer {
+        void perform() throws IOException;
     }
 }
