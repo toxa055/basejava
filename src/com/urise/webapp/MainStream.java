@@ -23,13 +23,14 @@ public class MainStream {
     }
 
     private static int minValue(int[] values) {
-        List<Integer> list = new ArrayList<>(values.length);
-        IntStream.of(values).forEach(list::add);
-        list = list.stream().distinct().sorted().collect(Collectors.toList());
-        List<Integer> finalList = list;
+        List<Integer> list = IntStream.of(values)
+                .distinct()
+                .sorted()
+                .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
         return list.stream()
-                .map(x -> (int) (Math.pow(10, finalList.size() - finalList.indexOf(x) - 1)) * x)
-                .mapToInt(x -> x).sum();
+                .map(x -> (int) (Math.pow(10, list.size() - list.indexOf(x) - 1)) * x)
+                .mapToInt(x -> x)
+                .sum();
     }
 
     private static List<Integer> oddOrEven(List<Integer> integers) {
