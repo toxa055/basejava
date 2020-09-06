@@ -10,10 +10,10 @@ public class MainStream {
 
         System.out.println(minValue(new int[]{1, 2, 3, 3, 2, 3}));
         System.out.println(minValue(new int[]{9, 8}));
-        System.out.println(minValue(new int[]{9, 5, 0, 6, 4, 6, 2}));
+        System.out.println(minValue(new int[]{9, 5, 6, 4, 6, 2}));
 
         List<Integer> list = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 1; i < 5; i++) {
             list.add(i);
         }
         oddOrEven(list).forEach(System.out::println);
@@ -23,22 +23,16 @@ public class MainStream {
     }
 
     private static int minValue(int[] values) {
-        List<Integer> list = IntStream.of(values)
-                .distinct()
+        return IntStream.of(values)
                 .sorted()
-                .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
-        return list.stream()
-                .map(x -> (int) (Math.pow(10, list.size() - list.indexOf(x) - 1)) * x)
-                .mapToInt(x -> x)
-                .sum();
+                .distinct()
+                .reduce((x, y) -> x * 10 + y)
+                .getAsInt();
     }
 
     private static List<Integer> oddOrEven(List<Integer> integers) {
         Map<Boolean, List<Integer>> map = integers.stream()
                 .collect(Collectors.partitioningBy(x -> (x % 2 == 0)));
-        return (integers.stream()
-                .reduce(0, Integer::sum) % 2 == 0)
-                ? map.get(true)
-                : map.get(false);
+        return (map.get(false).size() % 2 != 0) ? map.get(false) : map.get(true);
     }
 }
