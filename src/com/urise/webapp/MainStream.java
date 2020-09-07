@@ -26,13 +26,12 @@ public class MainStream {
         return IntStream.of(values)
                 .sorted()
                 .distinct()
-                .reduce((x, y) -> x * 10 + y)
-                .getAsInt();
+                .reduce(0, (x, y) -> x * 10 + y);
     }
 
     private static List<Integer> oddOrEven(List<Integer> integers) {
         Map<Boolean, List<Integer>> map = integers.stream()
                 .collect(Collectors.partitioningBy(x -> (x % 2 == 0)));
-        return (map.get(false).size() % 2 != 0) ? map.get(false) : map.get(true);
+        return map.get(map.get(false).size() % 2 == 0);
     }
 }
