@@ -1,5 +1,6 @@
 package com.urise.webapp.storage;
 
+import com.urise.webapp.Config;
 import com.urise.webapp.exception.ExistStorageException;
 import com.urise.webapp.exception.NotExistStorageException;
 import com.urise.webapp.model.Resume;
@@ -15,7 +16,7 @@ import static com.urise.webapp.ResumeTestData.fillResume;
 
 public abstract class AbstractStorageTest {
     protected Storage storage;
-    protected static final File STORAGE_DIR = new File("resumestorage");
+    protected static final File STORAGE_DIR = Config.get().getStorageDir();
 
     private final static String UUID_0 = "uuid0";
     private final static String UUID_1 = "uuid1";
