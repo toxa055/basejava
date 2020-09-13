@@ -1,76 +1,97 @@
 package com.urise.webapp.storage;
 
 import com.urise.webapp.exception.NotExistStorageException;
-import com.urise.webapp.exception.StorageException;
 import com.urise.webapp.model.Resume;
-import com.urise.webapp.sql.ConnectionFactory;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class SqlStorage implements Storage {
-    public final ConnectionFactory connectionFactory;
-    // LOGGER !!!!!!!!!
+    private final Logger LOG = Logger.getLogger(SqlStorage.class.getName());
+    private final SqlHelper sqlHelper;
 
     public SqlStorage(String dbUrl, String dbUser, String dbPassword) {
-        connectionFactory = () -> DriverManager.getConnection(dbUrl, dbUser, dbPassword);
+        sqlHelper = new SqlHelper(dbUrl, dbUser, dbPassword);
     }
 
     @Override
     public void clear() {
-        try (Connection connection = connectionFactory.getConnection();
-             PreparedStatement ps = connection.prepareStatement("DELETE FROM resume")) {
-            ps.execute();
-        } catch (SQLException e) {
-            throw new StorageException(e);
-        }
+        LOG.info("Clear table resume.");
+        sqlHelper.perform("DELETE FROM resume", PreparedStatement::execute);
     }
 
     @Override
     public void save(Resume resume) {
-        try (Connection connection = connectionFactory.getConnection();
-             PreparedStatement ps = connection
-                     .prepareStatement("INSERT INTO resume (uuid, full_name) VALUES (?,?)")) {
+        LOG.info("Save " + resume);
+        sqlHelper.perform("INSERT INTO resume (uuid, full_name) VALUES (?,?)", ps -> {
             ps.setString(1, resume.getUuid());
-            ps.setString(1, resume.getFullName());
+            ps.setString(2, resume.getFullName());
             ps.execute();
-        } catch (SQLException e) {
-            throw new StorageException(e);
-        }
+        });
     }
 
     @Override
     public void update(Resume resume) {
-
+        LOG.info("Update " + resume);
+        sqlHelper.perform("UPDATE resume SET full_name=? WHERE uuid=?", ps -> {
+            ps.setString(1, resume.getFullName());
+            ps.setString(2, resume.getUuid());
+            checkExistUuid(ps, resume.getUuid());
+        });
     }
 
     @Override
     public Resume get(String uuid) {
-        try (Connection connection = connectionFactory.getConnection();
-             PreparedStatement ps = connection.prepareStatement("SELECT * FROM resume r WHERE r.uuid =?")) {
+        LOG.info("Get " + uuid);
+        return sqlHelper.receive("SELECT * FROM resume r WHERE r.uuid =?", ps -> {
             ps.setString(1, uuid);
             ResultSet rs = ps.executeQuery();
             if (!rs.next()) {
+                LOG.warning("Resume with " + uuid + " uuid does not exist.");
                 throw new NotExistStorageException(uuid);
             }
             return new Resume(uuid, rs.getString("full_name"));
-        } catch (SQLException e) {
-            throw new StorageException(e);
-        }
+        });
     }
 
     @Override
     public void delete(String uuid) {
-
+        LOG.info("Delete " + uuid);
+        sqlHelper.perform("DELETE FROM resume WHERE uuid=?", ps -> {
+            ps.setString(1, uuid);
+            checkExistUuid(ps, uuid);
+        });
     }
 
     @Override
     public List<Resume> getAllSorted() {
-        return null;
+        LOG.info("getAllSorted.");
+        return sqlHelper.receive("SELECT * FROM resume ORDER BY full_name, uuid", ps -> {
+            List<Resume> list = new ArrayList<>();
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(new Resume(rs.getString("uuid").trim(), rs.getString("full_name")));
+            }
+            return list;
+        });
     }
 
     @Override
     public int size() {
-        return 0;
+        LOG.info("Size of table resume.");
+        return sqlHelper.receive("SELECT count(*) FROM resume", ps -> {
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+            return rs.getInt(1);
+        });
+    }
+
+    private void checkExistUuid(PreparedStatement ps, String uuid) throws SQLException {
+        if (ps.executeUpdate() == 0) {
+            LOG.warning("Resume with " + uuid + " uuid does not exist.");
+            throw new NotExistStorageException(uuid);
+        }
     }
 }

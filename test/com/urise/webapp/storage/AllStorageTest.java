@@ -14,7 +14,8 @@ import org.junit.runners.Suite;
         ObjectPathStorageTest.class,
         XMLPathStorageTest.class,
         JsonPathStorageTest.class,
-        DataPathStorageTest.class
+        DataPathStorageTest.class,
+        SqlStorageTest.class
 })
 
 public class AllStorageTest {

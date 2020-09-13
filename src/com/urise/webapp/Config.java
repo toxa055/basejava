@@ -28,4 +28,8 @@ public class Config {
     public File getStorageDir() {
         return storageDir;
     }
+
+    public Properties getProperties() {
+        return properties;
+    }
 }

@@ -45,7 +45,7 @@ public class ResumeTestData {
 
     public static Resume fillResume(String uuid, String fullName) {
         Resume resume = new Resume(uuid, fullName);
-
+/*
         List<String> qualificationsList = new ArrayList<>();
         List<String> achievementList = new ArrayList<>();
         List<Organization> educationList = new ArrayList<>();
@@ -184,7 +184,7 @@ public class ResumeTestData {
         resume.addSection(SectionType.ACHIEVEMENT, achievementSection);
         resume.addSection(SectionType.EDUCATION, educationSection);
         resume.addSection(SectionType.EXPERIENCE, experienceSection);
-
+*/
         return resume;
     }
 }
