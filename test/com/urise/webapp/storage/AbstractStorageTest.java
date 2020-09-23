@@ -9,7 +9,9 @@ import org.junit.Test;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.Assert.*;
 import static com.urise.webapp.ResumeTestData.fillResume;
@@ -18,19 +20,17 @@ public abstract class AbstractStorageTest {
     protected Storage storage;
     protected static final File STORAGE_DIR = Config.get().getStorageDir();
 
-    private final static String UUID_0 = "uuid0";
-    private final static String UUID_1 = "uuid1";
-    private final static String UUID_2 = "uuid2";
-    private final static String UUID_3 = "uuid3";
-    private final static String UUID_4 = "uuid4";
-    private final static String UUID_5 = "uuid5";
+    private final static String UUID_1 = UUID.randomUUID().toString();
+    private final static String UUID_2 = UUID.randomUUID().toString();
+    private final static String UUID_3 = UUID.randomUUID().toString();
+    private final static String UUID_4 = UUID.randomUUID().toString();
+    private final static String UUID_5 = UUID.randomUUID().toString();
 
     private final static Resume RESUME_1 = fillResume(UUID_1, "Petrov Ivan");
     private final static Resume RESUME_2 = fillResume(UUID_2, "Petrov Aleksey");
     private final static Resume RESUME_3 = fillResume(UUID_3, "Ivanov Andrey");
     private final static Resume RESUME_4 = fillResume(UUID_4, "Sidorov Pavel");
     private final static Resume RESUME_5 = fillResume(UUID_5, "Sidorov Pavel");
-    private final static Resume RESUME_6 = fillResume(UUID_0, "Sidorov Pavel");
 
     protected AbstractStorageTest(Storage storage) {
         this.storage = storage;
@@ -102,9 +102,10 @@ public abstract class AbstractStorageTest {
 
     @Test
     public void getAllSorted() {
-        storage.save(RESUME_6);
-        List<Resume> expectedList = Arrays.asList(RESUME_3, RESUME_2, RESUME_1, RESUME_6, RESUME_4);
+        storage.save(RESUME_5);
         List<Resume> actualList = storage.getAllSorted();
+        List<Resume> expectedList = Arrays.asList(RESUME_1, RESUME_2, RESUME_3, RESUME_4, RESUME_5);
+        Collections.sort(expectedList);
         assertSize(5);
         assertEquals(expectedList, actualList);
     }

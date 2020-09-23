@@ -14,7 +14,7 @@ public class SqlStorage implements Storage {
     private final SqlHelper sqlHelper;
 
     public SqlStorage(String dbUrl, String dbUser, String dbPassword) {
-        sqlHelper = new SqlHelper(dbUrl, dbUser, dbPassword);
+        sqlHelper = new SqlHelper(() -> DriverManager.getConnection(dbUrl, dbUser, dbPassword));
     }
 
     @Override
@@ -39,7 +39,7 @@ public class SqlStorage implements Storage {
         sqlHelper.execute("UPDATE resume SET full_name=? WHERE uuid=?", ps -> {
             ps.setString(1, resume.getFullName());
             ps.setString(2, resume.getUuid());
-            executeUpdateAndCheckExistUuid(ps, resume.getUuid());
+            executeUpdateAndCheckExists(ps, resume.getUuid());
             return null;
         });
     }
@@ -62,7 +62,7 @@ public class SqlStorage implements Storage {
         LOG.info("Delete " + uuid);
         sqlHelper.execute("DELETE FROM resume WHERE uuid=?", ps -> {
             ps.setString(1, uuid);
-            executeUpdateAndCheckExistUuid(ps, uuid);
+            executeUpdateAndCheckExists(ps, uuid);
             return null;
         });
     }
@@ -74,7 +74,7 @@ public class SqlStorage implements Storage {
             List<Resume> list = new ArrayList<>();
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                list.add(new Resume(rs.getString("uuid").trim(), rs.getString("full_name")));
+                list.add(new Resume(rs.getString("uuid"), rs.getString("full_name")));
             }
             return list;
         });
@@ -90,7 +90,7 @@ public class SqlStorage implements Storage {
         });
     }
 
-    private void executeUpdateAndCheckExistUuid(PreparedStatement ps, String uuid) throws SQLException {
+    private void executeUpdateAndCheckExists(PreparedStatement ps, String uuid) throws SQLException {
         if (ps.executeUpdate() == 0) {
             throw new NotExistStorageException(uuid);
         }
