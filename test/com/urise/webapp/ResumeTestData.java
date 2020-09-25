@@ -55,7 +55,7 @@ public class ResumeTestData {
         ListSection achievementSection = new ListSection(achievementList);
         OrganizationSection educationSection = new OrganizationSection(educationList);
         OrganizationSection experienceSection = new OrganizationSection(experienceList);
-
+*/
         resume.addContact(ContactType.PHONE, "+7(921) 855-0482");
         resume.addContact(ContactType.MOBILE, "+7(921) 855-0482");
         resume.addContact(ContactType.HOME_PHONE, "+7(921) 855-0482");
@@ -65,7 +65,7 @@ public class ResumeTestData {
         resume.addContact(ContactType.GITHUB, "github.com/gkislin");
         resume.addContact(ContactType.STACKOVERFLOW, "stackoverflow.com/users/548473");
         resume.addContact(ContactType.HOME_PAGE, "gkislin.ru");
-
+/*
         resume.addSection(SectionType.PERSONAL, new SimpleTextSection("Аналитический склад ума," +
                 "сильная логика, креативность,инициативность. Пурист кода и архитектуры."));
 
