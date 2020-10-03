@@ -5,6 +5,8 @@ import com.urise.webapp.exception.ExistStorageException;
 import com.urise.webapp.exception.NotExistStorageException;
 import com.urise.webapp.model.ContactType;
 import com.urise.webapp.model.Resume;
+import com.urise.webapp.model.SectionType;
+import com.urise.webapp.model.SimpleTextSection;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -68,6 +70,7 @@ public abstract class AbstractStorageTest {
     public void update() {
         Resume resume = new Resume(UUID_4, "dummy");
         resume.addContact(ContactType.SKYPE, "new_skype");
+        resume.addSection(SectionType.OBJECTIVE, new SimpleTextSection("new objective"));
         storage.update(resume);
         assertGet(resume);
     }

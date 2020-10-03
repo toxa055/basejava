@@ -45,14 +45,16 @@ public class ResumeTestData {
 
     public static Resume fillResume(String uuid, String fullName) {
         Resume resume = new Resume(uuid, fullName);
-/*
+
         List<String> qualificationsList = new ArrayList<>();
         List<String> achievementList = new ArrayList<>();
+/*
         List<Organization> educationList = new ArrayList<>();
         List<Organization> experienceList = new ArrayList<>();
-
+*/
         ListSection qualificationsSection = new ListSection(qualificationsList);
         ListSection achievementSection = new ListSection(achievementList);
+/*
         OrganizationSection educationSection = new OrganizationSection(educationList);
         OrganizationSection experienceSection = new OrganizationSection(experienceList);
 */
@@ -65,7 +67,7 @@ public class ResumeTestData {
         resume.addContact(ContactType.GITHUB, "github.com/gkislin");
         resume.addContact(ContactType.STACKOVERFLOW, "stackoverflow.com/users/548473");
         resume.addContact(ContactType.HOME_PAGE, "gkislin.ru");
-/*
+
         resume.addSection(SectionType.PERSONAL, new SimpleTextSection("Аналитический склад ума," +
                 "сильная логика, креативность,инициативность. Пурист кода и архитектуры."));
 
@@ -114,7 +116,7 @@ public class ResumeTestData {
                 "онлайн клиента для администрирования и мониторинга системы по JMX (Jython/ Django).");
         achievementList.add("Реализация протоколов по приему платежей всех основных " +
                 "платежных системы России (Cyberplat, Eport, Chronopay, Сбербанк), Белоруcсии(Erip, Osmp) и Никарагуа.");
-
+/*
         educationList.add(new Organization("Coursera", null,
                 new Organization.Position(2013, Month.MARCH, 2013, Month.MAY,
                         "\"Functional Programming Principles in Scala\" by Martin Odersky", null)));
@@ -179,9 +181,10 @@ public class ResumeTestData {
                 new Organization.Position(1997, Month.SEPTEMBER, 2005, Month.JANUARY,
                         "Инженер по аппаратному и программному тестированию", "Тестирование, отладка, " +
                         "внедрение ПО цифровой телефонной станции Alcatel 1000 S12(CHILL, ASM).")));
-
+*/
         resume.addSection(SectionType.QUALIFICATIONS, qualificationsSection);
         resume.addSection(SectionType.ACHIEVEMENT, achievementSection);
+/*
         resume.addSection(SectionType.EDUCATION, educationSection);
         resume.addSection(SectionType.EXPERIENCE, experienceSection);
 */
