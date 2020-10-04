@@ -1,5 +1,6 @@
 package com.urise.webapp.web;
 
+import com.urise.webapp.Config;
 import com.urise.webapp.model.Resume;
 import com.urise.webapp.storage.SqlStorage;
 
@@ -12,24 +13,23 @@ import java.io.Writer;
 import java.util.List;
 
 public class ResumeServlet extends HttpServlet {
+    private SqlStorage storage;
+
+    @Override
+    public void init() throws ServletException {
+        storage = Config.get().getSqlStorage();
+        super.init();
+    }
+
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Writer writer;
-        SqlStorage storage;
-        List<Resume> resumes;
-        try {
-            Class.forName("org.postgresql.Driver");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+        List<Resume> resumes = storage.getAllSorted();
         response.setContentType("text/html;charset=utf-8");
         writer = response.getWriter();
-        storage = new SqlStorage("jdbc:postgresql://localhost:5432/resumes",
-                "postgres", "password");
-        resumes = storage.getAllSorted();
 
         writer.write("<table border=1>");
         writer.write("<tr><td>uuid</td>");
