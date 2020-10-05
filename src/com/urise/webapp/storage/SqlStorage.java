@@ -57,8 +57,8 @@ public class SqlStorage implements Storage {
                         ps.setString(2, resume.getUuid());
                         executeUpdateAndCheckExists(ps, resume.getUuid());
                     }
-                    deleteFromTable(resume, "DELETE FROM contact where resume_uuid=?");
-                    deleteFromTable(resume, "DELETE FROM section where resume_uuid=?");
+                    deleteFromTable(conn, resume, "DELETE FROM contact where resume_uuid=?");
+                    deleteFromTable(conn, resume, "DELETE FROM section where resume_uuid=?");
                     insertContact(resume, conn);
                     insertSection(resume, conn);
                     return null;
@@ -225,11 +225,10 @@ public class SqlStorage implements Storage {
         }
     }
 
-    private void deleteFromTable(Resume resume, String query) {
-        sqlHelper.execute(query, ps -> {
+    private void deleteFromTable(Connection conn, Resume resume, String query) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(1, resume.getUuid());
             ps.executeUpdate();
-            return null;
-        });
+        }
     }
 }
