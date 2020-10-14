@@ -62,10 +62,10 @@ public class ResumeTestData {
         resume.addContact(ContactType.MOBILE, "+7(921) 855-0482");
         resume.addContact(ContactType.HOME_PHONE, "+7(921) 855-0482");
         resume.addContact(ContactType.SKYPE, "grigory.kislin");
-        resume.addContact(ContactType.EMAIL, "linkedin.com/in/gkislin");
-        resume.addContact(ContactType.LINKEDIN, "gkislin@yandex.ru");
-        resume.addContact(ContactType.GITHUB, "github.com/gkislin");
-        resume.addContact(ContactType.STACKOVERFLOW, "stackoverflow.com/users/548473");
+        resume.addContact(ContactType.EMAIL, "gkislin@yandex.ru");
+        resume.addContact(ContactType.LINKEDIN, "gkislin");
+        resume.addContact(ContactType.GITHUB, "gkislin");
+        resume.addContact(ContactType.STACKOVERFLOW, "548473");
         resume.addContact(ContactType.HOME_PAGE, "gkislin.ru");
 
         resume.addSection(SectionType.PERSONAL, new SimpleTextSection("Аналитический склад ума," +
@@ -95,12 +95,11 @@ public class ResumeTestData {
                 "Nagios, iReport, OpenCmis, Bonita, pgBouncer.");
         qualificationsList.add("Отличное знание и опыт применения концепций ООП, SOA, шаблонов проектрирования, " +
                 "архитектурных шаблонов, UML, функционального программирования");
-        qualificationsList.add("Родной русский, английский \"upper intermediate\"");
+        qualificationsList.add("Родной русский, английский upper intermediate");
 
-        achievementList.add("С 2013 года: разработка проектов \"Разработка " +
-                "Web приложения\", \"Java Enterprise\", \"Многомодульный maven. Многопоточность. XML (JAXB/StAX). " +
-                "Веб сервисы (JAX-RS/SOAP). Удаленное взаимодействие (JMS/AKKA)\". Организация онлайн стажировок " +
-                "и ведение проектов. Более 1000 выпускников.");
+        achievementList.add("С 2013 года: разработка проектов Разработка Web приложения, Java Enterprise, " +
+                "Многомодульный maven. Многопоточность. XML (JAXB/StAX). Веб сервисы (JAX-RS/SOAP). Удаленное " +
+                "взаимодействие (JMS/AKKA). Организация онлайн стажировок и ведение проектов. Более 1000 выпускников.");
         achievementList.add("Реализация двухфакторной аутентификации для онлайн платформы " +
                 "управления проектами Wrike. Интеграция с Twilio, DuoSecurity, Google Authenticator, Jira, Zendesk.");
         achievementList.add("Налаживание процесса разработки и непрерывной интеграции " +

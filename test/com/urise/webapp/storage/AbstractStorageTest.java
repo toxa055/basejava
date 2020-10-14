@@ -33,7 +33,7 @@ public abstract class AbstractStorageTest {
     private final static Resume RESUME_2 = fillResume(UUID_2, "Petrov Aleksey");
     private final static Resume RESUME_3 = fillResume(UUID_3, "Ivanov Andrey");
     private final static Resume RESUME_4 = fillResume(UUID_4, "Sidorov Pavel");
-    private final static Resume RESUME_5 = fillResume(UUID_5, "Sidorov Pavel");
+    public final static Resume RESUME_5 = fillResume(UUID_5, "Sidorov Pavel");
 
     protected AbstractStorageTest(Storage storage) {
         this.storage = storage;
