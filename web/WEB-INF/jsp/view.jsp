@@ -25,7 +25,7 @@
         <c:choose>
             <c:when test="${(sectionEntry.key == SectionType.PERSONAL) || (sectionEntry.key == SectionType.OBJECTIVE)}">
                 <b>${sectionEntry.key.title}:</b><br/>
-                <li>${sectionEntry.value}><br/></li>
+                <li>${sectionEntry.value}<br/></li>
             </c:when>
             <c:when test="${(sectionEntry.key == SectionType.ACHIEVEMENT) || (sectionEntry.key == SectionType.QUALIFICATIONS)}">
                 <b>${sectionEntry.key.title}:</b><br/>

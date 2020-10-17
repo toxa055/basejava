@@ -37,16 +37,15 @@
                 <c:when test="${(sType.name() == SectionType.ACHIEVEMENT) || (sType.name() == SectionType.QUALIFICATIONS)}">
                     <dl>
                         <dt>${sType.title}</dt>
-                        <c:if test="${(resume.fullName != null) && (resume.getSection(sType) != null)}">
-                            <c:forEach var="item" items="${(resume.getSection(sType)).items}">
-                                <dd><input type="text" name="${sType.name()}" size=120 value="${item}"></dd>
-                            </c:forEach>
-                            <dd><input type="text" name="${sType.name()}" size=120 value="${""}"></dd>
+                        <c:if test="${(resume.fullName != null) &&
+                        ((resume.getSection(sType) != null) || (resume.getSection(sType).items.length != 0))}">
+                            <dd><textarea name="${sType.name()}" id="${sType.name()}" cols="100" rows="20"><c:forEach
+                                    var="item" items="${(resume.getSection(sType)).items}">${item}<%="\n"%></c:forEach></textarea></dd>
                         </c:if>
                         <c:if test="${resume.fullName == null}">
-                            <dd><input type="text" name="${sType.name()}" size=120 value="${""}"></dd>
-                            <dd><input type="text" name="${sType.name()}" size=120 value="${""}"></dd>
-                            <dd><input type="text" name="${sType.name()}" size=120 value="${""}"></dd>
+                            <dd>
+                                <textarea name="${sType.name()}" id="${sType.name()}" cols="100" rows="10"></textarea>
+                            </dd>
                         </c:if>
                     </dl>
                 </c:when>

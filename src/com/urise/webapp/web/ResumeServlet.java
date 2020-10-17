@@ -9,8 +9,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ResumeServlet extends HttpServlet {
     private SqlStorage storage;
@@ -85,6 +83,9 @@ public class ResumeServlet extends HttpServlet {
                     case OBJECTIVE:
                         resume.addSection(type, new SimpleTextSection(value));
                         break;
+                    case ACHIEVEMENT:
+                    case QUALIFICATIONS:
+                        resume.addSection(type, new ListSection(value.split("\n")));
                     default:
                         break;
                 }
@@ -92,19 +93,5 @@ public class ResumeServlet extends HttpServlet {
                 resume.getSections().remove(type);
             }
         }
-        updateSection(request, resume, SectionType.ACHIEVEMENT);
-        updateSection(request, resume, SectionType.QUALIFICATIONS);
-    }
-
-    private void updateSection(HttpServletRequest request, Resume resume, SectionType type) {
-        String[] values = request.getParameterValues(type.name());
-        List<String> items = new ArrayList<>();
-        resume.getSections().remove(type);
-        for (String value : values) {
-            if ((value != null) && (value.trim().length() != 0)) {
-                items.add(value);
-            }
-        }
-        resume.addSection(type, new ListSection(items));
     }
 }
