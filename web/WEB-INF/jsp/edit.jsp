@@ -40,7 +40,11 @@
                         <c:if test="${(resume.fullName != null) &&
                         ((resume.getSection(sType) != null) || (resume.getSection(sType).items.length != 0))}">
                             <dd><textarea name="${sType.name()}" id="${sType.name()}" cols="100" rows="20"><c:forEach
-                                    var="item" items="${(resume.getSection(sType)).items}">${item}<%="\n"%></c:forEach></textarea></dd>
+                                    var="item" items="${(resume.getSection(sType)).items}"><c:set
+                                    var="element" scope="session" value="${item}"/><c:out
+                                    value="${element}"/><c:out value="
+"/></c:forEach></textarea>
+                            </dd>
                         </c:if>
                         <c:if test="${resume.fullName == null}">
                             <dd>
