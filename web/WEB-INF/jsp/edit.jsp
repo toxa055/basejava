@@ -1,5 +1,7 @@
 <%@ page import="com.urise.webapp.model.ContactType" %>
 <%@ page import="com.urise.webapp.model.SectionType" %>
+<%@ page import="java.lang.String" %>
+<%@ page import="com.urise.webapp.model.ListSection" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html>
@@ -27,6 +29,7 @@
         </c:forEach>
         <h3>Секции:</h3>
         <c:forEach var="sType" items="${SectionType.values()}">
+            <jsp:useBean id="sType" type="com.urise.webapp.model.SectionType"/>
             <c:choose>
                 <c:when test="${(sType.name() == SectionType.PERSONAL) || (sType.name() == SectionType.OBJECTIVE)}">
                     <dl>
@@ -37,16 +40,14 @@
                 <c:when test="${(sType.name() == SectionType.ACHIEVEMENT) || (sType.name() == SectionType.QUALIFICATIONS)}">
                     <dl>
                         <dt>${sType.title}</dt>
-                        <c:if test="${(resume.fullName != null) &&
-                        ((resume.getSection(sType) != null) || (resume.getSection(sType).items.length != 0))}">
-                            <dd><textarea name="${sType.name()}" id="${sType.name()}" cols="100" rows="20"><c:forEach
-                                    var="item" items="${(resume.getSection(sType)).items}"><c:set
-                                    var="element" scope="session" value="${item}"/><c:out
-                                    value="${element}"/><c:out value="
-"/></c:forEach></textarea>
+                        <c:if test="${resume.getSection(sType) != null}">
+                            <dd>
+                                <textarea name="${sType.name()}" id="${sType.name()}" cols="100"
+                                          rows="20"><%=String.join("\n",
+                                        ((ListSection) resume.getSection(sType)).getItems())%></textarea>
                             </dd>
                         </c:if>
-                        <c:if test="${resume.fullName == null}">
+                        <c:if test="${resume.getSection(sType) == null}">
                             <dd>
                                 <textarea name="${sType.name()}" id="${sType.name()}" cols="100" rows="10"></textarea>
                             </dd>

@@ -2,7 +2,6 @@ package com.urise.webapp.model;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -16,12 +15,11 @@ public class ListSection extends AbstractSection {
     }
 
     public ListSection(String... items) {
-        this(new ArrayList<>(Arrays.asList(items)));
+        this(Arrays.asList(items));
     }
 
     public ListSection(List<String> list) {
         Objects.requireNonNull(list, "list must not be null");
-        list.removeIf(x -> ((x == null) || (x.trim().length() == 0)));
         this.items = list;
     }
 
