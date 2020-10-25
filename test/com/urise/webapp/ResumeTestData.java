@@ -48,16 +48,13 @@ public class ResumeTestData {
 
         List<String> qualificationsList = new ArrayList<>();
         List<String> achievementList = new ArrayList<>();
-/*
         List<Organization> educationList = new ArrayList<>();
         List<Organization> experienceList = new ArrayList<>();
-*/
         ListSection qualificationsSection = new ListSection(qualificationsList);
         ListSection achievementSection = new ListSection(achievementList);
-/*
         OrganizationSection educationSection = new OrganizationSection(educationList);
         OrganizationSection experienceSection = new OrganizationSection(experienceList);
-*/
+
         resume.addContact(ContactType.PHONE, "+7(921) 855-0482");
         resume.addContact(ContactType.MOBILE, "+7(921) 855-0482");
         resume.addContact(ContactType.HOME_PHONE, "+7(921) 855-0482");
@@ -115,10 +112,10 @@ public class ResumeTestData {
                 "онлайн клиента для администрирования и мониторинга системы по JMX (Jython/ Django).");
         achievementList.add("Реализация протоколов по приему платежей всех основных " +
                 "платежных системы России (Cyberplat, Eport, Chronopay, Сбербанк), Белоруcсии(Erip, Osmp) и Никарагуа.");
-/*
+
         educationList.add(new Organization("Coursera", null,
                 new Organization.Position(2013, Month.MARCH, 2013, Month.MAY,
-                        "\"Functional Programming Principles in Scala\" by Martin Odersky", null)));
+                        "Functional Programming Principles in Scala by Martin Odersky", null)));
         educationList.add(new Organization("Luxoft", null,
                 new Organization.Position(2011, Month.MARCH, 2011, Month.APRIL,
                         "Объектно-ориентированный анализ ИС. Концептуальное моделирование на UML.", null)));
@@ -165,7 +162,7 @@ public class ResumeTestData {
         experienceList.add(new Organization("Yota", "yota.ru",
                 new Organization.Position(2008, Month.JUNE, 2010, Month.DECEMBER,
                         "Ведущий специалист", "Дизайн и имплементация Java EE фреймворка для отдела " +
-                        "\"Платежные Системы\" (GlassFish v2 .1, v3, OC4J, EJB3, JAX - WS RI 2.1, Servlet 2.4, JSP, JMX, JMS, Maven2). " +
+                        "Платежные Системы (GlassFish v2 .1, v3, OC4J, EJB3, JAX - WS RI 2.1, Servlet 2.4, JSP, JMX, JMS, Maven2). " +
                         "Реализация администрирования, статистики и мониторинга фреймворка. " +
                         "Разработка online JMX клиента (Python / Jython, Django, ExtJS)")));
         experienceList.add(new Organization("Enkata", "enkata.com",
@@ -180,13 +177,11 @@ public class ResumeTestData {
                 new Organization.Position(1997, Month.SEPTEMBER, 2005, Month.JANUARY,
                         "Инженер по аппаратному и программному тестированию", "Тестирование, отладка, " +
                         "внедрение ПО цифровой телефонной станции Alcatel 1000 S12(CHILL, ASM).")));
-*/
+
         resume.addSection(SectionType.QUALIFICATIONS, qualificationsSection);
         resume.addSection(SectionType.ACHIEVEMENT, achievementSection);
-/*
         resume.addSection(SectionType.EDUCATION, educationSection);
         resume.addSection(SectionType.EXPERIENCE, experienceSection);
-*/
         return resume;
     }
 }

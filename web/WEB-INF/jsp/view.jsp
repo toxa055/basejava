@@ -13,7 +13,7 @@
 <section>
     <h2>${resume.fullName}<a href="resume?uuid=${resume.uuid}&action=edit">
         <img src="img/pencil.png" title="edit resume"></a></h2>
-    <b>Контакты:</b><br/>
+    <h3>Контакты:</h3>
     <c:forEach var="contactEntry" items="${resume.contacts}">
         <jsp:useBean id="contactEntry"
                      type="java.util.Map.Entry<com.urise.webapp.model.ContactType, java.lang.String>"/>
@@ -24,15 +24,30 @@
             com.urise.webapp.model.AbstractSection>"/>
         <c:choose>
             <c:when test="${(sectionEntry.key == SectionType.PERSONAL) || (sectionEntry.key == SectionType.OBJECTIVE)}">
-                <b>${sectionEntry.key.title}:</b><br/>
+                <h4>${sectionEntry.key.title}:</h4>
                 <li>${sectionEntry.value}<br/></li>
+                <br/>
             </c:when>
             <c:when test="${(sectionEntry.key == SectionType.ACHIEVEMENT) || (sectionEntry.key == SectionType.QUALIFICATIONS)}">
-                <b>${sectionEntry.key.title}:</b><br/>
+                <h4>${sectionEntry.key.title}:</h4>
                 <c:forEach var="item" items="${(sectionEntry.value).items}">
                     <li>${item}<br/></li>
-                </c:forEach>
+                </c:forEach><br/>
             </c:when>
+            <c:when test="${(sectionEntry.key == SectionType.EXPERIENCE) || (sectionEntry.key == SectionType.EDUCATION)}">
+                <h4>${sectionEntry.key.title}:</h4>
+                <c:forEach var="org" items="${(sectionEntry.value).organizations}">
+                    <h5>${org.homepage.name} <a href="http://${org.homepage.url}">${org.homepage.url}</a></h5>
+                    <c:forEach var="pos" items="${org.positions}">
+                        <p>
+                                ${pos.startDate} / ${pos.endDate}<br/>
+                                ${pos.title}<br/>
+                                ${pos.description}<br/>
+                        </p>
+                    </c:forEach>
+                </c:forEach><br/>
+            </c:when>
+
         </c:choose>
     </c:forEach>
 </section>

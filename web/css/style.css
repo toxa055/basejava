@@ -35,12 +35,32 @@ dd {
     vertical-align: top;
 }
 
-h2, h3 {
+h2 {
     margin: 15px 0 5px;
+}
+
+h3 {
+    font-size: 22px;
+}
+
+h4 {
+    font-size: 18px;
+}
+
+h5 {
+    font-size: 15px;
+}
+
+b {
+    font-size: 18px;
 }
 
 li {
     margin: 15px 0;
+}
+
+p {
+    margin: 20px;
 }
 
 a[href^="skype:"] {
@@ -66,4 +86,29 @@ a[href^="https://www.linkedin.com"] {
 a[href^="https://github.com"] {
     padding-left: 20px !important;
     background: url(../img/gh.png) no-repeat center left;
+}
+
+.wrapper {
+    background-color: whitesmoke;
+    list-style-type: none;
+    padding: 0;
+    border-radius: 3px;
+    width: 900px;
+}
+
+.form-row {
+    display: flex;
+    justify-content: flex-end;
+    padding: .5em;
+}
+
+.form-row > label {
+    padding: .5em 1em .5em 0;
+    flex: 1;
+}
+
+.form-row > input,
+.form-row > textarea {
+    flex: 4;
+    padding: .5em;
 }

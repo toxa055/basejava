@@ -29,6 +29,10 @@ public class Organization implements Serializable {
         this(new Link(name, url), Arrays.asList(positions));
     }
 
+    public Organization(Link link, Position... positions) {
+        this(link, Arrays.asList(positions));
+    }
+
     public Organization(Link homepage, List<Position> positions) {
         this.homepage = homepage;
         this.positions = positions;
@@ -40,6 +44,10 @@ public class Organization implements Serializable {
 
     public List<Position> getPositions() {
         return positions;
+    }
+
+    public void setPositions(List<Position> positions) {
+        this.positions = positions;
     }
 
     @Override
@@ -91,7 +99,7 @@ public class Organization implements Serializable {
             this.startDate = startDate;
             this.endDate = endDate;
             this.title = title;
-            this.description = (description == null) ? "null" : description;
+            this.description = (description == null) ? "" : description;
         }
 
         public LocalDate getStartDate() {

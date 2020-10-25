@@ -9,9 +9,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 public class ResumeServlet extends HttpServlet {
     private SqlStorage storage;
@@ -91,11 +94,61 @@ public class ResumeServlet extends HttpServlet {
                         List<String> items = new ArrayList<>(Arrays.asList(value.split("\n")));
                         items.removeIf(x -> ((x == null) || (x.trim().length() == 0)));
                         resume.addSection(type, new ListSection(items));
+                        break;
                     default:
                         break;
                 }
             } else {
                 resume.getSections().remove(type);
+            }
+        }
+        for (SectionType type : SectionType.values()) {
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-d", Locale.ENGLISH);
+            String[] sectionLines = request.getParameterValues(type.name());
+            switch (type) {
+                case EDUCATION:
+                case EXPERIENCE:
+                    List<Organization> organizations = new ArrayList<>();
+                    for (int i = 0; i < sectionLines.length; i += 6) {
+                        String name = sectionLines[i].trim();
+                        String url = sectionLines[i + 1].trim();
+                        String title = sectionLines[i + 4].trim();
+                        String description = sectionLines[i + 5].trim();
+                        LocalDate startDate;
+                        LocalDate endDate;
+                        try {
+                            startDate = LocalDate.parse(sectionLines[i + 2].trim(), dtf);
+                            endDate = LocalDate.parse(sectionLines[i + 3].trim(), dtf);
+                        } catch (RuntimeException e) {
+                            startDate = null;
+                            endDate = null;
+                        }
+                        if ((name.length() != 0) && (startDate != null) && (endDate != null) && (title.length() != 0)) {
+                            Link link = new Link(name, url);
+                            Organization.Position position = new Organization.Position(startDate, endDate, title, description);
+                            if (i == 0) {
+                                organizations.add(new Organization(link, position));
+                            } else {
+                                int index = -1;
+                                for (int j = 0; j < organizations.size(); j++) {
+                                    if (organizations.get(j).getHomepage().equals(link)) {
+                                        index = j;
+                                    }
+                                }
+                                if (index == -1) {
+                                    organizations.add(new Organization(link, position));
+                                } else {
+                                    List<Organization.Position> positionList = new ArrayList<>(organizations.get(index).getPositions());
+                                    positionList.add(position);
+                                    organizations.get(index).setPositions(positionList);
+                                }
+                            }
+                            resume.addSection(type, new OrganizationSection(organizations));
+                        }
+                    }
+                    break;
+                default:
+                    break;
             }
         }
     }
