@@ -10,6 +10,7 @@
 <body>
 <jsp:include page="fragments/header.jsp"/>
 <section>
+    <p><a href="resume?action=add"><img src="img/add.png" title="new resume"> add resume</a></p>
     <p>Список резюме:</p>
     <table border="1" cellpadding="8" cellspacing="0">
         <tr>
@@ -30,7 +31,6 @@
             </tr>
         </c:forEach>
     </table>
-    <p><a href="resume?uuid=${""}&action=edit"><img src="img/add.png" title="new resume"> add resume</a></p>
 </section>
 <jsp:include page="fragments/footer.jsp"/>
 </body>

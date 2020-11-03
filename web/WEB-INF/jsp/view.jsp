@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.urise.webapp.model.SectionType" %>
+<%@ page import="com.urise.webapp.util.HtmlUtil" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html>
 <head>
@@ -22,34 +23,37 @@
     <c:forEach var="sectionEntry" items="${resume.sections}">
         <jsp:useBean id="sectionEntry" type="java.util.Map.Entry<com.urise.webapp.model.SectionType,
             com.urise.webapp.model.AbstractSection>"/>
+        <c:set var="type" value="${sectionEntry.key}"/>
+        <c:set var="section" value="${sectionEntry.value}"/>
+        <jsp:useBean id="section" type="com.urise.webapp.model.AbstractSection"/>
         <c:choose>
-            <c:when test="${(sectionEntry.key == SectionType.PERSONAL) || (sectionEntry.key == SectionType.OBJECTIVE)}">
-                <h4>${sectionEntry.key.title}:</h4>
-                <li>${sectionEntry.value}<br/></li>
+            <c:when test="${(type == SectionType.PERSONAL) || (type == SectionType.OBJECTIVE)}">
+                <h4>${type.title}:</h4>
+                <li>${section}<br/></li>
                 <br/>
             </c:when>
-            <c:when test="${(sectionEntry.key == SectionType.ACHIEVEMENT) || (sectionEntry.key == SectionType.QUALIFICATIONS)}">
-                <h4>${sectionEntry.key.title}:</h4>
-                <c:forEach var="item" items="${(sectionEntry.value).items}">
+            <c:when test="${(type == SectionType.ACHIEVEMENT) || (type == SectionType.QUALIFICATIONS)}">
+                <h4>${type.title}:</h4>
+                <c:forEach var="item" items="${(section).items}">
                     <li>${item}<br/></li>
                 </c:forEach><br/>
             </c:when>
-            <c:when test="${(sectionEntry.key == SectionType.EXPERIENCE) || (sectionEntry.key == SectionType.EDUCATION)}">
-                <h4>${sectionEntry.key.title}:</h4>
-                <c:forEach var="org" items="${(sectionEntry.value).organizations}">
+            <c:when test="${(type == SectionType.EXPERIENCE) || (type == SectionType.EDUCATION)}">
+                <h4>${type.title}:</h4>
+                <c:forEach var="org" items="${section.organizations}">
                     <h5>${org.homepage.name} <a href="http://${org.homepage.url}">${org.homepage.url}</a></h5>
                     <c:forEach var="pos" items="${org.positions}">
-                        <p>
-                                ${pos.startDate} / ${pos.endDate}<br/>
+                        <jsp:useBean id="pos" type="com.urise.webapp.model.Organization.Position"/>
+                        <p><%=HtmlUtil.formatDates(pos)%><br/>
                                 ${pos.title}<br/>
-                                ${pos.description}<br/>
+                                ${pos.description}
                         </p>
                     </c:forEach>
                 </c:forEach><br/>
             </c:when>
-
         </c:choose>
     </c:forEach>
+    <button onclick="window.history.back()">Назад</button>
 </section>
 <jsp:include page="fragments/footer.jsp"/>
 </body>

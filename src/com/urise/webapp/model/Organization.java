@@ -19,6 +19,7 @@ import static com.urise.webapp.util.DateUtil.of;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Organization implements Serializable {
     private static final long serialVersionUID = 1L;
+    public static final Organization EMPTY = new Organization("", "", Position.EMPTY);
     private Link homepage;
     private List<Position> positions = new ArrayList<>();
 
@@ -46,10 +47,6 @@ public class Organization implements Serializable {
         return positions;
     }
 
-    public void setPositions(List<Position> positions) {
-        this.positions = positions;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -74,6 +71,7 @@ public class Organization implements Serializable {
 
     @XmlAccessorType(XmlAccessType.FIELD)
     public static class Position implements Serializable {
+        public static final Position EMPTY = new Position();
         @XmlJavaTypeAdapter(LocalDateAdapter.class)
         private LocalDate startDate;
         @XmlJavaTypeAdapter(LocalDateAdapter.class)

@@ -10,7 +10,7 @@ import java.util.Map;
 public class ResumeTestData {
 
     public static void main(String[] args) {
-        Resume resume = fillResume("uuid1", "Grigory Kislin");
+        Resume resume = fillResume("uuid1", "Andrey Andreev");
 
         for (Map.Entry<ContactType, String> contact : resume.getContacts().entrySet()) {
             System.out.println(contact.getKey().getTitle() + ": " + contact.getValue());
@@ -55,15 +55,15 @@ public class ResumeTestData {
         OrganizationSection educationSection = new OrganizationSection(educationList);
         OrganizationSection experienceSection = new OrganizationSection(experienceList);
 
-        resume.addContact(ContactType.PHONE, "+7(921) 855-0482");
-        resume.addContact(ContactType.MOBILE, "+7(921) 855-0482");
-        resume.addContact(ContactType.HOME_PHONE, "+7(921) 855-0482");
-        resume.addContact(ContactType.SKYPE, "grigory.kislin");
-        resume.addContact(ContactType.EMAIL, "gkislin@yandex.ru");
-        resume.addContact(ContactType.LINKEDIN, "gkislin");
-        resume.addContact(ContactType.GITHUB, "gkislin");
-        resume.addContact(ContactType.STACKOVERFLOW, "548473");
-        resume.addContact(ContactType.HOME_PAGE, "gkislin.ru");
+        resume.addContact(ContactType.PHONE, "+7(999) 999-9991");
+        resume.addContact(ContactType.MOBILE, "+7(999) 999-9992");
+        resume.addContact(ContactType.HOME_PHONE, "+7(812) 999-9993");
+        resume.addContact(ContactType.SKYPE, "mySkype");
+        resume.addContact(ContactType.EMAIL, "mymail@gmail.com");
+        resume.addContact(ContactType.LINKEDIN, "myLinkedIN");
+        resume.addContact(ContactType.GITHUB, "myGitHub");
+        resume.addContact(ContactType.STACKOVERFLOW, "999999");
+        resume.addContact(ContactType.HOME_PAGE, "google.com");
 
         resume.addSection(SectionType.PERSONAL, new SimpleTextSection("Аналитический склад ума," +
                 "сильная логика, креативность,инициативность. Пурист кода и архитектуры."));

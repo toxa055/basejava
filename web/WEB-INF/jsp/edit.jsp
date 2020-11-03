@@ -2,6 +2,7 @@
 <%@ page import="com.urise.webapp.model.SectionType" %>
 <%@ page import="java.lang.String" %>
 <%@ page import="com.urise.webapp.model.*" %>
+<%@ page import="com.urise.webapp.util.DateUtil" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html>
@@ -55,14 +56,9 @@
                         <ul class="wrapper">
                             <li class="form-row">
                                 <label for="listSection"><b>${sType.title}</b></label>
-                                <c:if test="${resume.getSection(sType) != null}">
                                 <textarea name="${sType.name()}" rows="15"
                                           id="listSection"><%=String.join("\n",
                                         ((ListSection) resume.getSection(sType)).getItems())%></textarea>
-                                </c:if>
-                                <c:if test="${resume.getSection(sType) == null}">
-                                    <textarea name="${sType.name()}" rows="10" id="listSection"></textarea>
-                                </c:if>
                             </li>
                         </ul>
                     </dl>
@@ -72,99 +68,46 @@
                         <dt><h4>${sType.title}</h4></dt>
                         <dd>
                             <ul class="wrapper">
-                                <c:if test="${resume.getSection(sType) != null}">
-                                    <c:forEach var="org" items="${resume.getSection(sType).organizations}">
-                                        <c:forEach var="pos" items="${org.positions}">
-                                            <li class="form-row">
-                                                <label for="name">Название:</label>
-                                                <input type="text" id="name" name="${sType.name()}"
-                                                       value="${org.homepage.name}"/>
-                                            </li>
-                                            <li class="form-row">
-                                                <label for="homepage">Домашняя страница:</label>
-                                                <input type="text" id="homepage" name="${sType.name()}"
-                                                       value="${org.homepage.url}"/>
-                                            </li>
-                                            <li class="form-row">
-                                                <label for="startDate">Начальная дата:</label>
-                                                <input type="text" id="startDate" name="${sType.name()}"
-                                                       value="${pos.startDate}"/>
-                                            </li>
-                                            <li class="form-row">
-                                                <label for="endDate">Конечная дата:</label>
-                                                <input type="text" id="endDate" name="${sType.name()}"
-                                                       value="${pos.endDate}"/>
-                                            </li>
-                                            <li class="form-row">
-                                                <label for="position">Позиция:</label>
-                                                <input type="text" id="position" name="${sType.name()}"
-                                                       value="${pos.title}">
-                                            </li>
-                                            <li class="form-row">
-                                                <label for="description">Описание:</label>
-                                                <textarea name="${sType.name()}" rows="12"
-                                                          id="description">${pos.description}</textarea>
-                                            </li>
-                                        </c:forEach>
-                                        <hr>
+                                <c:forEach var="org" items="${resume.getSection(sType).organizations}"
+                                           varStatus="counter">
+                                    <li class="form-row">
+                                        <label for="name">Название:</label>
+                                        <input type="text" id="name" name="${sType.name()}"
+                                               value="${org.homepage.name}"/>
+                                    </li>
+                                    <li class="form-row">
+                                        <label for="homepage">Домашняя страница:</label>
+                                        <input type="text" id="homepage" name="${sType.name()}url"
+                                               value="${org.homepage.url}"/>
+                                    </li>
+                                    <c:forEach var="pos" items="${org.positions}">
+                                        <jsp:useBean id="pos" type="com.urise.webapp.model.Organization.Position"/>
+                                        <li class="form-row">
+                                            <label for="startDate">Начальная дата:</label>
+                                            <input type="text" id="startDate"
+                                                   name="${sType.name()}${counter.index}startDate"
+                                                   value="<%=DateUtil.format(pos.getStartDate())%>"
+                                                   placeholder="yyyy/MM"/>
+                                        <li class="form-row">
+                                            <label for="endDate">Конечная дата:</label>
+                                            <input type="text" id="endDate"
+                                                   name="${sType.name()}${counter.index}endDate"
+                                                   value="<%=DateUtil.format(pos.getEndDate())%>"
+                                                   placeholder="yyyy/MM"/>
+                                        </li>
+                                        <li class="form-row">
+                                            <label for="title">Позиция:</label>
+                                            <input type="text" id="title"
+                                                   name="${sType.name()}${counter.index}title" value="${pos.title}">
+                                        </li>
+                                        <li class="form-row">
+                                            <label for="description">Описание:</label>
+                                            <textarea name="${sType.name()}${counter.index}description" rows="12"
+                                                      id="description">${pos.description}</textarea>
+                                        </li>
                                     </c:forEach>
-                                    <li class="form-row">
-                                        <label for="addName">Название:</label>
-                                        <input type="text" id="addName" name="${sType.name()}"/>
-                                    </li>
-                                    <li class="form-row">
-                                        <label for="addHomepage">Домашняя страница:</label>
-                                        <input type="text" id="addHomepage" name="${sType.name()}"/>
-                                    </li>
-                                    <li class="form-row">
-                                        <label for="addStartDate">Начальная дата:</label>
-                                        <input type="text" id="addStartDate" name="${sType.name()}" value="ГГГГ-ММ-Д"/>
-                                    </li>
-                                    <li class="form-row">
-                                        <label for="addEndDate">Конечная дата:</label>
-                                        <input type="text" id="addEndDate" name="${sType.name()}" value="ГГГГ-ММ-Д"/>
-                                    </li>
-                                    <li class="form-row">
-                                        <label for="addPosition">Позиция:</label>
-                                        <input type="text" id="addPosition" name="${sType.name()}">
-                                    </li>
-                                    <li class="form-row">
-                                        <label for="addDescription">Описание:</label>
-                                        <textarea name="${sType.name()}" rows="12" id="addDescription"></textarea>
-                                    </li>
                                     <hr>
-                                </c:if>
-                                <c:if test="${resume.getSection(sType) == null}">
-                                    <c:forEach begin="0" end="1" varStatus="loop">
-                                        <li class="form-row">
-                                            <label for="newName">Название:</label>
-                                            <input type="text" id="newName" name="${sType.name()}"/>
-                                        </li>
-                                        <li class="form-row">
-                                            <label for="newHomepage">Домашняя страница:</label>
-                                            <input type="text" id="newHomepage" name="${sType.name()}"/>
-                                        </li>
-                                        <li class="form-row">
-                                            <label for="newStartDate">Начальная дата:</label>
-                                            <input type="text" id="newStartDate" name="${sType.name()}"
-                                                   value="ГГГГ-ММ-Д"/>
-                                        </li>
-                                        <li class="form-row">
-                                            <label for="newEndDate">Конечная дата:</label>
-                                            <input type="text" id="newEndDate" name="${sType.name()}"
-                                                   value="ГГГГ-ММ-Д"/>
-                                        </li>
-                                        <li class="form-row">
-                                            <label for="newPosition">Позиция:</label>
-                                            <input type="text" id="newPosition" name="${sType.name()}">
-                                        </li>
-                                        <li class="form-row">
-                                            <label for="newDescription">Описание:</label>
-                                            <textarea name="${sType.name()}" rows="12" id="newDescription"></textarea>
-                                        </li>
-                                        <hr>
-                                    </c:forEach>
-                                </c:if>
+                                </c:forEach>
                             </ul>
                         </dd>
                     </dl>
