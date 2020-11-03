@@ -25,8 +25,8 @@
                 </li>
             </ul>
         </dl>
-        <h3>Контакты:</h3>
         <dl>
+            <h3>Контакты:</h3>
             <ul class="wrapper">
                 <c:forEach var="cType" items="${ContactType.values()}">
                     <li class="form-row">
@@ -36,7 +36,6 @@
                 </c:forEach>
             </ul>
         </dl>
-        <h3>Секции:</h3>
         <c:forEach var="sType" items="${SectionType.values()}">
             <jsp:useBean id="sType" type="com.urise.webapp.model.SectionType"/>
             <c:choose>
